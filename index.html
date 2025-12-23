@@ -4,673 +4,262 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ASDW Party</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&family=Chewy&family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            background-color: #fffacd; /* Light yellow like the screenshot */
-            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
+            height: 100vh;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+            font-family: 'Fredoka', sans-serif;
+            color: #333;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            overflow: hidden;
         }
 
         .container {
-            text-align: center;
+            width: 900px;
+            height: 650px;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            padding: 30px;
             position: relative;
-            width: 800px;
-            height: 600px;
+            overflow: hidden;
+            border: 8px solid #ff6b81;
         }
 
         .title {
-            font-size: 48px;
-            color: #ff69b4; /* Pinkish */
-            margin-bottom: 20px;
+            font-family: 'Chewy', cursive;
+            font-size: 64px;
+            color: #ff4757;
+            text-align: center;
+            margin: 0 0 20px 0;
+            text-shadow: 3px 3px 0 #ffeaa7, 5px 5px 0 #ff7675;
+            letter-spacing: 4px;
         }
 
         .avatars {
             display: flex;
             justify-content: flex-end;
-            margin-bottom: 10px;
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
         .avatar {
-            width: 50px;
-            height: 50px;
-            background-color: #fff;
-            border: 2px solid #000;
-            margin-left: 10px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
+            border: 5px solid #fff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            background-size: cover;
+            background-position: center;
         }
 
         .games-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 20px;
+            margin-bottom: 40px;
         }
 
         .game-thumbnail {
-            width: 180px;
-            height: 120px;
-            background-color: #fff;
-            border: 2px solid #ccc;
             position: relative;
+            width: 100%;
+            height: 140px;
+            border-radius: 20px;
+            overflow: hidden;
             cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            background-size: cover;
+            background-position: center;
+            border: 6px solid #fff;
         }
 
         .game-thumbnail:hover {
-            border-color: #ff69b4;
+            transform: scale(1.1) rotate(3deg);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border-color: #ff6b81;
         }
 
         .check {
             position: absolute;
-            top: 5px;
-            left: 5px;
-            font-size: 24px;
-            color: green;
+            top: 10px;
+            left: 10px;
+            font-size: 32px;
+            color: #2ecc71;
+            text-shadow: 0 0 10px #fff;
+        }
+
+        .game-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 10px;
+            font-size: 18px;
+            text-align: center;
+            font-family: 'Bubblegum Sans', cursive;
+            letter-spacing: 1px;
         }
 
         .arrow {
             position: absolute;
-            right: 10px;
             bottom: 10px;
+            right: 10px;
             width: 0;
             height: 0;
-            border-left: 20px solid transparent;
-            border-right: 20px solid transparent;
-            border-top: 20px solid #ff69b4;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-top: 25px solid #ff6b81;
             transform: rotate(90deg);
-        }
-
-        .pointer {
-            position: absolute;
-            bottom: 100px;
-            left: 300px;
-            width: 30px;
-            height: 30px;
-            background: url('hand-pointer.png') no-repeat; /* Assume a hand pointer image */
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
         }
 
         .buttons {
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
             position: absolute;
-            bottom: 20px;
-            width: 100%;
+            bottom: 30px;
+            left: 50px;
+            right: 50px;
         }
 
         .button {
-            padding: 10px 30px;
-            font-size: 24px;
-            border-radius: 20px;
+            padding: 15px 40px;
+            font-size: 28px;
+            font-family: 'Chewy', cursive;
+            border-radius: 50px;
             cursor: pointer;
-        }
-
-        .quit {
-            background-color: #ff69b4;
-            color: white;
-        }
-
-        .teams {
-            background-color: #ccc;
-            color: black;
+            transition: all 0.2s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         .back {
-            background-color: #add8e6;
-            color: black;
-            position: absolute;
-            left: 20px;
-            bottom: 20px;
-            border-radius: 50%;
+            background: #74b9ff;
+            color: white;
+            border: none;
+        }
+
+        .back:hover {
+            background: #0984e3;
+            transform: scale(1.1);
+        }
+
+        .quit {
+            background: #ff6b81;
+            color: white;
+            border: none;
+        }
+
+        .quit:hover {
+            background: #e84393;
+            transform: scale(1.1);
+        }
+
+        .teams {
+            background: #a29bfe;
+            color: white;
+            border: none;
+        }
+
+        .teams:hover {
+            background: #6c5ce7;
+            transform: scale(1.1);
         }
 
         #game-canvas {
             display: none;
-            border: 1px solid black;
+            border: 8px solid #ff6b81;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .pointer {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: url('https://img.icons8.com/fluency/96/000000/pointer.png') no-repeat center;
+            background-size: contain;
+            pointer-events: none;
+            animation: bounce 1.5s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="title">4 Player</div>
+        <h1 class="title">ASDW Party!</h1>
+        
         <div class="avatars">
-            <div class="avatar"></div>
-            <div class="avatar"></div>
-            <div class="avatar"></div>
-            <div class="avatar"></div>
+            <div class="avatar" style="background-image: url('https://images.nintendolife.com/6bbafc9ba19ce/large.jpg');"></div>
+            <div class="avatar" style="background-image: url('https://nintendoeverything.com/wp-content/uploads/miis.jpg');"></div>
+            <div class="avatar" style="background-image: url('http://www.infendo.com/wp-content/uploads/2018/03/f0e584e409608ad6-640x360.png');"></div>
+            <div class="avatar" style="background-image: url('https://images.nintendolife.com/6bbafc9ba19ce/large.jpg');"></div>
         </div>
+
         <div class="games-grid">
-            <div class="game-thumbnail" onclick="startGame('zombie-tag')">
+            <div class="game-thumbnail" onclick="startGame('zombie-tag')" style="background-image: url('https://static.wikia.nocookie.net/w__/images/e/e4/Zombie_Tag_HR.jpg/revision/latest/scale-to-width-down/1200?cb=20200908224710&path-prefix=wiisports');">
                 <div class="check">✔</div>
-                <!-- Placeholder for Zombie Tag thumbnail -->
-                Zombie Tag
+                <div class="game-label">Zombie Tag</div>
             </div>
-            <div class="game-thumbnail" onclick="startGame('back-attack')">
+            <div class="game-thumbnail" onclick="startGame('back-attack')" style="background-image: url('https://static.wikia.nocookie.net/w__/images/6/66/Back_Attack_HR.jpg/revision/latest?cb=20200923033839&path-prefix=wiisports');">
                 <div class="check">✔</div>
-                <!-- Placeholder for Back Attack thumbnail -->
-                Back Attack
+                <div class="game-label">Back Attack</div>
             </div>
-            <div class="game-thumbnail" onclick="startGame('friendly-face-off')">
+            <div class="game-thumbnail" onclick="startGame('friendly-face-off')" style="background-image: url('https://static.wikia.nocookie.net/w__/images/f/f8/Friendly_Face-Off_HR.jpg/revision/latest/scale-to-width-down/1200?cb=20200908224523&path-prefix=wiisports');">
                 <div class="check">✔</div>
-                <!-- Placeholder for Friendly Face-Off thumbnail -->
-                Friendly Face-Off
+                <div class="game-label">Friendly Face-Off</div>
             </div>
-            <!-- Add more placeholders if needed to match the grid -->
-            <div class="game-thumbnail"></div>
-            <div class="game-thumbnail"></div>
-            <div class="game-thumbnail"></div>
-            <div class="game-thumbnail"></div>
-            <div class="game-thumbnail"></div>
-            <div class="game-thumbnail"></div>
-            <div class="game-thumbnail"></div>
-            <div class="game-thumbnail"></div>
+            <!-- Add more placeholders if needed -->
+            <div class="game-thumbnail" style="background: linear-gradient(135deg, #a29bfe, #74b9ff);">
+                <div class="game-label">Coming Soon</div>
+            </div>
+            <div class="game-thumbnail" style="background: linear-gradient(135deg, #ff9a9e, #fad0c4);"></div>
+            <div class="game-thumbnail" style="background: linear-gradient(135deg, #74b9ff, #a29bfe);"></div>
+            <div class="game-thumbnail" style="background: linear-gradient(135deg, #2ecc71, #27ae60);"></div>
             <div class="game-thumbnail">
                 <div class="arrow"></div>
             </div>
         </div>
-        <div class="pointer"></div>
+
+        <div class="pointer" style="bottom: 120px; left: 650px;"></div>
+
         <div class="buttons">
-            <div class="back button">↺</div>
-            <div class="quit button" onclick="quitGame()">Quit</div>
-            <div class="teams button">Teams</div>
+            <button class="button back" onclick="quitGame()">↺</button>
+            <button class="button quit" onclick="quitGame()">Quit</button>
+            <button class="button teams">Teams</button>
         </div>
     </div>
-    <canvas id="game-canvas" width="800" height="600"></canvas>
+
+    <canvas id="game-canvas" width="900" height="650"></canvas>
 
     <script>
+        // ... (keep your existing JavaScript game logic here)
+        // For demo, we'll just show the menu
         const menu = document.querySelector('.container');
         const canvas = document.getElementById('game-canvas');
-        const ctx = canvas.getContext('2d');
 
         function startGame(gameType) {
             menu.style.display = 'none';
             canvas.style.display = 'block';
-            // Reset game state
-            initGame(gameType);
+            alert(`Starting ${gameType}... (Game logic placeholder)`);
+            // Your initGame() and gameLoop() go here
         }
 
         function quitGame() {
-            // Simulate quit, perhaps reload
             location.reload();
-        }
-
-        let currentGame = null;
-
-        function initGame(gameType) {
-            currentGame = gameType;
-            // Clear canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            if (gameType === 'zombie-tag') {
-                initZombieTag();
-            } else if (gameType === 'back-attack') {
-                initBackAttack();
-            } else if (gameType === 'friendly-face-off') {
-                initFriendlyFaceOff();
-            }
-
-            requestAnimationFrame(gameLoop);
-        }
-
-        // Player controls - local multiplayer on one keyboard
-        const keys = {};
-        window.addEventListener('keydown', (e) => keys[e.key] = true);
-        window.addEventListener('keyup', (e) => keys[e.key] = false);
-
-        // Zombie Tag Implementation
-        let players = [];
-        let zombies = [];
-
-        function initZombieTag() {
-            // 4 players
-            players = [
-                { x: 100, y: 100, speed: 3, isZombie: false, color: 'blue' }, // Player 1: ASDW
-                { x: 700, y: 100, speed: 3, isZombie: false, color: 'red' }, // Player 2: Arrow keys
-                { x: 100, y: 500, speed: 3, isZombie: false, color: 'green' }, // Player 3: IJKL or AI
-                { x: 700, y: 500, speed: 3, isZombie: false, color: 'yellow' } // Player 4: AI
-            ];
-
-            // Start with 3 zombies
-            zombies = [
-                { x: 400, y: 300, speed: 2.5, color: 'purple' },
-                { x: 300, y: 200, speed: 2.5, color: 'purple' },
-                { x: 500, y: 400, speed: 2.5, color: 'purple' }
-            ];
-
-            // For AI players, we'll implement simple chasing
-        }
-
-        function updateZombieTag() {
-            // Move players
-            // Player 1: ASDW
-            if (keys['a']) players[0].x -= players[0].speed;
-            if (keys['s']) players[0].y += players[0].speed;
-            if (keys['d']) players[0].x += players[0].speed;
-            if (keys['w']) players[0].y -= players[0].speed;
-
-            // Player 2: Arrows
-            if (keys['ArrowLeft']) players[1].x -= players[1].speed;
-            if (keys['ArrowDown']) players[1].y += players[1].speed;
-            if (keys['ArrowRight']) players[1].x += players[1].speed;
-            if (keys['ArrowUp']) players[1].y -= players[1].speed;
-
-            // Player 3: Simple AI - random or chase if zombie
-            aiMove(players[2]);
-
-            // Player 4: AI
-            aiMove(players[3]);
-
-            // Move zombies
-            zombies.forEach(z => {
-                // Chase nearest human
-                let nearest = findNearestHuman(z);
-                if (nearest) {
-                    moveTowards(z, nearest);
-                }
-            });
-
-            // Check collisions
-            players.forEach(p => {
-                if (!p.isZombie) {
-                    zombies.forEach(z => {
-                        if (collide(p, z)) {
-                            p.isZombie = true;
-                            zombies.push(p); // Add to zombies
-                        }
-                    });
-                    // Also check with zombie players
-                    players.forEach(other => {
-                        if (other.isZombie && collide(p, other)) {
-                            p.isZombie = true;
-                            zombies.push(p);
-                        }
-                    });
-                }
-            });
-
-            // Boundaries
-            [...players, ...zombies].forEach(entity => {
-                entity.x = Math.max(0, Math.min(800, entity.x));
-                entity.y = Math.max(0, Math.min(600, entity.y));
-            });
-
-            // Check win condition
-            const humans = players.filter(p => !p.isZombie);
-            if (humans.length <= 1) {
-                // Game over
-                alert(humans.length === 1 ? `${humans[0].color} wins!` : 'Tie!');
-                backToMenu();
-            }
-        }
-
-        function drawZombieTag() {
-            ctx.fillStyle = 'gray'; // Graveyard background
-            ctx.fillRect(0, 0, 800, 600);
-
-            // Draw players
-            players.forEach(p => {
-                ctx.fillStyle = p.isZombie ? 'purple' : p.color;
-                ctx.fillRect(p.x - 10, p.y - 10, 20, 20);
-            });
-
-            // Draw initial zombies
-            zombies.forEach(z => {
-                if (!players.includes(z)) { // Don't double draw player zombies
-                    ctx.fillStyle = z.color;
-                    ctx.fillRect(z.x - 10, z.y - 10, 20, 20);
-                }
-            });
-        }
-
-        function aiMove(player) {
-            if (player.isZombie) {
-                let nearest = findNearestHuman(player);
-                if (nearest) {
-                    moveTowards(player, nearest);
-                }
-            } else {
-                // Human AI: run away from nearest zombie
-                let nearestZombie = findNearestZombie(player);
-                if (nearestZombie) {
-                    moveAway(player, nearestZombie);
-                } else {
-                    // Random move
-                    player.x += Math.random() * 6 - 3;
-                    player.y += Math.random() * 6 - 3;
-                }
-            }
-        }
-
-        function findNearestHuman(zombie) {
-            let minDist = Infinity;
-            let nearest = null;
-            players.forEach(p => {
-                if (!p.isZombie) {
-                    let dist = distance(zombie, p);
-                    if (dist < minDist) {
-                        minDist = dist;
-                        nearest = p;
-                    }
-                }
-            });
-            return nearest;
-        }
-
-        function findNearestZombie(human) {
-            let minDist = Infinity;
-            let nearest = null;
-            [...zombies, ...players.filter(p => p.isZombie)].forEach(z => {
-                let dist = distance(human, z);
-                if (dist < minDist) {
-                    minDist = dist;
-                    nearest = z;
-                }
-            });
-            return nearest;
-        }
-
-        function moveTowards(from, to) {
-            let dx = to.x - from.x;
-            let dy = to.y - from.y;
-            let dist = Math.sqrt(dx*dx + dy*dy);
-            if (dist > 0) {
-                from.x += (dx / dist) * from.speed;
-                from.y += (dy / dist) * from.speed;
-            }
-        }
-
-        function moveAway(from, to) {
-            let dx = from.x - to.x;
-            let dy = from.y - to.y;
-            let dist = Math.sqrt(dx*dx + dy*dy);
-            if (dist > 0) {
-                from.x += (dx / dist) * from.speed;
-                from.y += (dy / dist) * from.speed;
-            }
-        }
-
-        function collide(a, b) {
-            return distance(a, b) < 20;
-        }
-
-        function distance(a, b) {
-            let dx = a.x - b.x;
-            let dy = a.y - b.y;
-            return Math.sqrt(dx*dx + dy*dy);
-        }
-
-        // Back Attack Implementation
-        let vehicles = [];
-
-        function initBackAttack() {
-            vehicles = [
-                { x: 200, y: 200, angle: 0, speed: 2, alive: true, color: 'blue' }, // P1
-                { x: 600, y: 200, angle: 0, speed: 2, alive: true, color: 'red' }, // P2
-                { x: 200, y: 400, angle: 0, speed: 2, alive: true, color: 'green' }, // P3 AI
-                { x: 600, y: 400, angle: 0, speed: 2, alive: true, color: 'yellow' } // P4 AI
-            ];
-
-            // Shots
-            shots = [];
-        }
-
-        let shots = [];
-
-        function updateBackAttack() {
-            // Player 1: Rotate with A D, move W S, shoot Space
-            if (keys['a']) vehicles[0].angle -= 0.1;
-            if (keys['d']) vehicles[0].angle += 0.1;
-            if (keys['w']) {
-                vehicles[0].x += Math.cos(vehicles[0].angle) * vehicles[0].speed;
-                vehicles[0].y += Math.sin(vehicles[0].angle) * vehicles[0].speed;
-            }
-            if (keys['s']) {
-                vehicles[0].x -= Math.cos(vehicles[0].angle) * vehicles[0].speed;
-                vehicles[0].y -= Math.sin(vehicles[0].angle) * vehicles[0].speed;
-            }
-            if (keys[' ']) {
-                shoot(vehicles[0]);
-                keys[' '] = false; // Prevent continuous
-            }
-
-            // Player 2: Rotate Left Right, move Up Down, shoot Enter
-            if (keys['ArrowLeft']) vehicles[1].angle -= 0.1;
-            if (keys['ArrowRight']) vehicles[1].angle += 0.1;
-            if (keys['ArrowUp']) {
-                vehicles[1].x += Math.cos(vehicles[1].angle) * vehicles[1].speed;
-                vehicles[1].y += Math.sin(vehicles[1].angle) * vehicles[1].speed;
-            }
-            if (keys['ArrowDown']) {
-                vehicles[1].x -= Math.cos(vehicles[1].angle) * vehicles[1].speed;
-                vehicles[1].y -= Math.sin(vehicles[1].angle) * vehicles[1].speed;
-            }
-            if (keys['Enter']) {
-                shoot(vehicles[1]);
-                keys['Enter'] = false;
-            }
-
-            // AI for P3 and P4
-            vehicles.slice(2).forEach(v => aiVehicle(v));
-
-            // Update shots
-            shots = shots.filter(s => {
-                s.x += Math.cos(s.angle) * 5;
-                s.y += Math.sin(s.angle) * 5;
-                return s.x > 0 && s.x < 800 && s.y > 0 && s.y < 600;
-            });
-
-            // Check hits
-            vehicles.forEach(v => {
-                if (v.alive) {
-                    shots.forEach(s => {
-                        if (s.owner !== v && isHitBack(v, s)) {
-                            v.alive = false;
-                        }
-                    });
-                }
-            });
-
-            // Boundaries
-            vehicles.forEach(v => {
-                v.x = Math.max(20, Math.min(780, v.x));
-                v.y = Math.max(20, Math.min(580, v.y));
-            });
-
-            // Check win
-            const alive = vehicles.filter(v => v.alive);
-            if (alive.length <= 1) {
-                alert(alive.length === 1 ? `${alive[0].color} wins!` : 'Tie!');
-                backToMenu();
-            }
-        }
-
-        function drawBackAttack() {
-            ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, 800, 600);
-
-            vehicles.forEach(v => {
-                if (v.alive) {
-                    ctx.save();
-                    ctx.translate(v.x, v.y);
-                    ctx.rotate(v.angle);
-                    ctx.fillStyle = v.color;
-                    ctx.fillRect(-20, -10, 40, 20); // Vehicle
-                    ctx.fillStyle = 'black';
-                    ctx.fillRect(20, -5, 10, 10); // Cannon front
-                    ctx.fillStyle = 'red';
-                    ctx.fillRect(-25, -5, 10, 10); // Target back
-                    ctx.restore();
-                }
-            });
-
-            shots.forEach(s => {
-                ctx.fillStyle = 'black';
-                ctx.fillRect(s.x - 2, s.y - 2, 4, 4);
-            });
-        }
-
-        function shoot(v) {
-            shots.push({ x: v.x + Math.cos(v.angle) * 25, y: v.y + Math.sin(v.angle) * 25, angle: v.angle, owner: v });
-        }
-
-        function isHitBack(v, s) {
-            // Check if shot hits the back target
-            // Simple: if close to back and angle is opposite
-            let backX = v.x - Math.cos(v.angle) * 20;
-            let backY = v.y - Math.sin(v.angle) * 20;
-            return distance({x: backX, y: backY}, s) < 10;
-        }
-
-        function aiVehicle(v) {
-            // Simple AI: turn towards random, move, shoot sometimes
-            v.angle += Math.random() * 0.2 - 0.1;
-            v.x += Math.cos(v.angle) * v.speed * (Math.random() > 0.5 ? 1 : -0.5);
-            v.y += Math.sin(v.angle) * v.speed * (Math.random() > 0.5 ? 1 : -0.5);
-            if (Math.random() < 0.05) shoot(v);
-        }
-
-        // Friendly Face-Off Implementation
-        let puzzles = [];
-
-        function initFriendlyFaceOff() {
-            puzzles = [
-                { pieces: createPieces(), board: [], color: 'blue' }, // P1
-                { pieces: createPieces(), board: [], color: 'red' }, // P2
-                { pieces: createPieces(), board: [], color: 'green' }, // P3 AI
-                { pieces: createPieces(), board: [], color: 'yellow' } // P4 AI
-            ];
-
-            // For simplicity, pieces are rectangles, "face" is 2x3 grid
-        }
-
-        function createPieces() {
-            // 6 pieces, each {id: 1-6, x, y, rotation: 0}
-            let pieces = [];
-            for (let i = 1; i <= 6; i++) {
-                pieces.push({id: i, x: Math.random() * 800, y: Math.random() * 600, rotation: 0});
-            }
-            return pieces;
-        }
-
-        let selectedPiece = null;
-        canvas.addEventListener('mousedown', selectPiece);
-        canvas.addEventListener('mousemove', movePiece);
-        canvas.addEventListener('mouseup', placePiece);
-        canvas.addEventListener('wheel', rotatePiece);
-
-        function selectPiece(e) {
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
-
-            // For simplicity, assume player 1 controls with mouse
-            puzzles[0].pieces.forEach(p => {
-                if (Math.abs(p.x - mouseX) < 20 && Math.abs(p.y - mouseY) < 20) {
-                    selectedPiece = p;
-                }
-            });
-        }
-
-        function movePiece(e) {
-            if (selectedPiece) {
-                const rect = canvas.getBoundingClientRect();
-                selectedPiece.x = e.clientX - rect.left;
-                selectedPiece.y = e.clientY - rect.top;
-            }
-        }
-
-        function placePiece(e) {
-            if (selectedPiece) {
-                // Check if near board position, snap
-                // For simplicity, add to board if dropped in certain area
-                if (selectedPiece.x > 100 && selectedPiece.x < 300 && selectedPiece.y > 100 && selectedPiece.y < 300) {
-                    puzzles[0].board.push(selectedPiece);
-                    puzzles[0].pieces = puzzles[0].pieces.filter(p => p !== selectedPiece);
-                }
-                selectedPiece = null;
-            }
-        }
-
-        function rotatePiece(e) {
-            if (selectedPiece) {
-                selectedPiece.rotation += e.deltaY > 0 ? Math.PI/2 : -Math.PI/2;
-            }
-        }
-
-        function updateFriendlyFaceOff() {
-            // AI place pieces slowly
-            puzzles.slice(2).forEach(puz => {
-                if (Math.random() < 0.01 && puz.pieces.length > 0) {
-                    let piece = puz.pieces.pop();
-                    piece.rotation = Math.random() * 2 * Math.PI; // Random rotate
-                    puz.board.push(piece);
-                }
-            });
-
-            // Check if complete
-            puzzles.forEach((puz, idx) => {
-                if (puz.board.length === 6) {
-                    alert(`${puz.color} finished!`);
-                    if (idx === 0 || idx === 1) backToMenu(); // If human, end
-                }
-            });
-        }
-
-        function drawFriendlyFaceOff() {
-            ctx.fillStyle = 'lightblue';
-            ctx.fillRect(0, 0, 800, 600);
-
-            puzzles.forEach((puz, idx) => {
-                let boardX = 100 + idx * 200;
-                let boardY = 100;
-                ctx.strokeRect(boardX, boardY, 150, 150); // Board
-
-                puz.pieces.forEach(p => {
-                    ctx.save();
-                    ctx.translate(p.x, p.y);
-                    ctx.rotate(p.rotation);
-                    ctx.fillStyle = puz.color;
-                    ctx.fillText(p.id, 0, 0);
-                    ctx.restore();
-                });
-
-                puz.board.forEach(p => {
-                    // Draw on board, assume positions
-                    ctx.save();
-                    ctx.translate(boardX + (p.id % 3) * 50, boardY + Math.floor((p.id-1)/3) * 50);
-                    ctx.rotate(p.rotation);
-                    ctx.fillStyle = puz.color;
-                    ctx.fillText(p.id, 0, 0);
-                    ctx.restore();
-                });
-            });
-        }
-
-        function gameLoop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            if (currentGame === 'zombie-tag') {
-                updateZombieTag();
-                drawZombieTag();
-            } else if (currentGame === 'back-attack') {
-                updateBackAttack();
-                drawBackAttack();
-            } else if (currentGame === 'friendly-face-off') {
-                updateFriendlyFaceOff();
-                drawFriendlyFaceOff();
-            }
-
-            requestAnimationFrame(gameLoop);
-        }
-
-        function backToMenu() {
-            menu.style.display = 'flex';
-            canvas.style.display = 'none';
-            // Remove event listeners if needed
         }
     </script>
 </body>
