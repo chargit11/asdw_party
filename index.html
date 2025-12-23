@@ -240,7 +240,6 @@
         const canvas = document.getElementById('game-canvas');
         const ctx = canvas.getContext('2d');
 
-        // Wii colors
         const wiiBlue = '#00a1d6';
         const wiiPink = '#ff69b4';
         const wiiYellow = '#ffd700';
@@ -261,7 +260,7 @@
             if (gameType === 'zombie-tag') initZombieTag();
             if (gameType === 'back-attack') initBackAttack();
             if (gameType === 'friendly-face-off') initFriendlyFaceOff();
-            gameLoop();
+            requestAnimationFrame(gameLoop);
         }
 
         function backToMenu() {
@@ -272,7 +271,7 @@
 
         function quitGame() { location.reload(); }
 
-        // Zombie Tag
+        // Zombie Tag (kept similar, but can be improved later)
         let zombies = [];
         let humans = [];
         function initZombieTag() {
@@ -286,19 +285,16 @@
         }
 
         function updateZombieTag() {
-            // P1 WASD
             if (keys['a']) humans[0].x -= humans[0].speed;
             if (keys['d']) humans[0].x += humans[0].speed;
             if (keys['w']) humans[0].y -= humans[0].speed;
             if (keys['s']) humans[0].y += humans[0].speed;
 
-            // P2 Arrows
             if (keys['arrowleft']) humans[1].x -= humans[1].speed;
             if (keys['arrowright']) humans[1].x += humans[1].speed;
             if (keys['arrowup']) humans[1].y -= humans[1].speed;
             if (keys['arrowdown']) humans[1].y += humans[1].speed;
 
-            // AI for P3/P4
             [2,3].forEach(i => {
                 if (Math.random() < 0.05) humans[i].dx = (Math.random()-0.5)*2;
                 if (Math.random() < 0.05) humans[i].dy = (Math.random()-0.5)*2;
@@ -307,18 +303,20 @@
             });
 
             zombies.forEach(z => {
-                let closest = humans.reduce((best, h) => {
-                    if (h.isZombie) return best;
-                    let d = distance(z, h);
-                    return d < distance(z, best) ? h : best;
-                }, humans[0]);
-                moveTowards(z, closest, z.speed);
+                let closest = humans.filter(h => !h.isZombie).reduce((best, h) => distance(z, h) < distance(z, best) ? h : best, humans[0]);
+                let dx = closest.x - z.x;
+                let dy = closest.y - z.y;
+                let dist = Math.hypot(dx, dy);
+                if (dist > 0) {
+                    z.x += (dx / dist) * z.speed;
+                    z.y += (dy / dist) * z.speed;
+                }
             });
 
             humans.forEach(h => {
                 if (h.isZombie) return;
                 [...zombies, ...humans.filter(p => p.isZombie)].forEach(z => {
-                    if (distance(h, z) < 25) {
+                    if (Math.hypot(h.x - z.x, h.y - z.y) < 25) {
                         h.isZombie = true;
                         zombies.push(h);
                     }
@@ -350,113 +348,202 @@
             });
         }
 
-        // Back Attack (Railroads)
-        let vehicles = [];
+        // Back Attack - Accurate to screenshot (square arena with railroad tracks, 4 players, timer)
+        let players = [];
         let shots = [];
-        let trackSegments = [];
+        let timer = 60;
+        const arenaSize = 600;
+        const centerX = 450;
+        const centerY = 325;
+        const trackWidth = 40;
+
         function initBackAttack() {
-            vehicles = [
-                { x: 300, y: 200, angle: 0, color: wiiBlue, alive: true, name: 'P1' },
-                { x: 600, y: 200, angle: 0, color: wiiRed, alive: true, name: 'P2' },
-                { x: 300, y: 450, angle: 0, color: wiiGreen, alive: true, name: 'P3' },
-                { x: 600, y: 450, angle: 0, color: wiiYellow, alive: true, name: 'P4' }
+            players = [
+                { x: centerX - 100, y: centerY - 100, angle: 0, color: wiiBlue, alive: true, name: 'P1' },
+                { x: centerX + 100, y: centerY - 100, angle: 0, color: wiiRed, alive: true, name: 'P2' },
+                { x: centerX - 100, y: centerY + 100, angle: 0, color: wiiGreen, alive: true, name: 'P3' },
+                { x: centerX + 100, y: centerY + 100, angle: 0, color: wiiYellow, alive: true, name: 'P4' }
             ];
-            trackSegments = [
-                { type: 'straight', x1: 150, y1: 100, x2: 750, y2: 100, dir: 'right' },
-                { type: 'curve', cx: 750, cy: 100, r: 100, startAngle: Math.PI*1.5, endAngle: Math.PI*0.5, dir: 'down' },
-                { type: 'straight', x1: 750, y1: 200, x2: 750, y2: 450, dir: 'down' },
-                { type: 'curve', cx: 750, cy: 450, r: 100, startAngle: Math.PI*0.5, endAngle: Math.PI*1.5, dir: 'up' },
-                { type: 'straight', x1: 750, y1: 550, x2: 150, y2: 550, dir: 'left' },
-                { type: 'curve', cx: 150, cy: 550, r: 100, startAngle: Math.PI*0.5, endAngle: Math.PI*1.5, dir: 'up' },
-                { type: 'straight', x1: 150, y1: 450, x2: 150, y2: 200, dir: 'up' },
-                { type: 'curve', cx: 150, cy: 200, r: 100, startAngle: Math.PI*1.5, endAngle: Math.PI*0.5, dir: 'down' }
-            ];
-            vehicles.forEach((v, i) => { v.onTrack = true; v.trackIndex = i % trackSegments.length; v.progress = 0.5; });
+            shots = [];
+            timer = 60;
         }
 
         function updateBackAttack() {
-            vehicles.forEach(v => {
-                if (!v.alive) return;
-                if (v.onTrack) {
-                    let seg = trackSegments[v.trackIndex];
-                    v.progress += 0.005;
-                    if (v.progress >= 1) {
-                        v.progress = 0;
-                        v.trackIndex = (v.trackIndex + 1) % trackSegments.length;
-                    }
-                    if (seg.type === 'straight') {
-                        let dx = seg.x2 - seg.x1;
-                        let dy = seg.y2 - seg.y1;
-                        v.x = seg.x1 + dx * v.progress;
-                        v.y = seg.y1 + dy * v.progress;
-                        v.angle = Math.atan2(dy, dx);
-                    } else {
-                        let angle = seg.startAngle + (seg.endAngle - seg.startAngle) * v.progress;
-                        v.x = seg.cx + Math.cos(angle) * seg.r;
-                        v.y = seg.cy + Math.sin(angle) * seg.r;
-                        v.angle = angle + Math.PI/2;
-                    }
-                }
-                if (keys['a'] || keys['arrowleft']) v.angle -= 0.05;
-                if (keys['d'] || keys['arrowright']) v.angle += 0.05;
+            // Movement (WASD for P1, Arrows for P2, AI for P3/P4)
+            if (keys['w']) players[0].y -= 4;
+            if (keys['s']) players[0].y += 4;
+            if (keys['a']) players[0].x -= 4;
+            if (keys['d']) players[0].x += 4;
 
-                if ((keys[' '] && v === vehicles[0]) || (keys['enter'] && v === vehicles[1])) {
-                    shots.push({ x: v.x + Math.cos(v.angle) * 30, y: v.y + Math.sin(v.angle) * 30, angle: v.angle, owner: v });
-                    keys[' '] = keys['enter'] = false;
-                }
+            if (keys['arrowup']) players[1].y -= 4;
+            if (keys['arrowdown']) players[1].y += 4;
+            if (keys['arrowleft']) players[1].x -= 4;
+            if (keys['arrowright']) players[1].x += 4;
+
+            // AI for P3 and P4 (random movement)
+            [2,3].forEach(i => {
+                if (Math.random() < 0.05) players[i].dx = (Math.random()-0.5)*8;
+                if (Math.random() < 0.05) players[i].dy = (Math.random()-0.5)*8;
+                players[i].x += players[i].dx || 0;
+                players[i].y += players[i].dy || 0;
             });
 
+            // Shooting
+            if (keys[' '] && players[0].alive) {
+                shots.push({ x: players[0].x, y: players[0].y, angle: players[0].angle, owner: 0 });
+                keys[' '] = false;
+            }
+            if (keys['enter'] && players[1].alive) {
+                shots.push({ x: players[1].x, y: players[1].y, angle: players[1].angle, owner: 1 });
+                keys['enter'] = false;
+            }
+
+            // Update shots
             shots = shots.filter(s => {
                 s.x += Math.cos(s.angle) * 8;
                 s.y += Math.sin(s.angle) * 8;
-                return s.x > 0 && s.x < 900 && s.y > 0 && s.y < 650;
+                return s.x > 150 && s.x < 750 && s.y > 100 && s.y < 550;
             });
 
-            vehicles.forEach(v => {
-                if (!v.alive) return;
+            // Hit detection (back of player)
+            players.forEach((p, i) => {
+                if (!p.alive) return;
                 shots.forEach(s => {
-                    if (s.owner === v) return;
-                    let backX = v.x - Math.cos(v.angle) * 25;
-                    let backY = v.y - Math.sin(v.angle) * 25;
-                    if (distance({x:backX, y:backY}, s) < 15) v.alive = false;
+                    if (s.owner === i) return;
+                    let backX = p.x - Math.cos(p.angle) * 25;
+                    let backY = p.y - Math.sin(p.angle) * 25;
+                    if (Math.hypot(backX - s.x, backY - s.y) < 20) {
+                        p.alive = false;
+                    }
                 });
             });
 
-            if (vehicles.filter(v => v.alive).length <= 1) {
-                alert('Game Over!');
+            // Timer
+            timer -= 1/60;
+            if (timer <= 0 || players.filter(p => p.alive).length <= 1) {
+                let alive = players.filter(p => p.alive);
+                let winner = alive.length === 1 ? alive[0].name : "Tie";
+                alert(`Time's up! Winner: ${winner}`);
                 backToMenu();
             }
         }
 
         function drawBackAttack() {
-            ctx.fillStyle = '#87ceeb'; ctx.fillRect(0, 0, 900, 650);
-            ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(200, 80, 60, 0, Math.PI*2); ctx.arc(250, 60, 80, 0, Math.PI*2); ctx.arc(300, 80, 60, 0, Math.PI*2); ctx.fill();
+            // Arena background (brown dirt)
+            ctx.fillStyle = '#8b4513';
+            ctx.fillRect(0, 0, 900, 650);
 
-            ctx.strokeStyle = '#8b4513'; ctx.lineWidth = 20;
-            trackSegments.forEach(seg => {
+            // Green grass patches (4 squares)
+            ctx.fillStyle = '#32cd32';
+            const grassSize = 150;
+            ctx.fillRect(centerX - grassSize, centerY - grassSize, grassSize*2, grassSize*2);
+
+            // Railroad tracks (white with black ties)
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = trackWidth;
+            ctx.beginPath();
+            ctx.moveTo(centerX - arenaSize/2, centerY - arenaSize/2);
+            ctx.lineTo(centerX + arenaSize/2, centerY - arenaSize/2);
+            ctx.lineTo(centerX + arenaSize/2, centerY + arenaSize/2);
+            ctx.lineTo(centerX - arenaSize/2, centerY + arenaSize/2);
+            ctx.closePath();
+            ctx.stroke();
+
+            // Track ties (black)
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 10;
+            for (let i = 0; i <= 4; i++) {
+                let x = centerX - arenaSize/2 + (arenaSize/2) * i;
                 ctx.beginPath();
-                if (seg.type === 'straight') ctx.moveTo(seg.x1, seg.y1), ctx.lineTo(seg.x2, seg.y2);
-                else ctx.arc(seg.cx, seg.cy, seg.r, seg.startAngle, seg.endAngle);
+                ctx.moveTo(x, centerY - arenaSize/2 - 20);
+                ctx.lineTo(x, centerY + arenaSize/2 + 20);
                 ctx.stroke();
-            });
+            }
+            for (let i = 0; i <= 4; i++) {
+                let y = centerY - arenaSize/2 + (arenaSize/2) * i;
+                ctx.beginPath();
+                ctx.moveTo(centerX - arenaSize/2 - 20, y);
+                ctx.lineTo(centerX + arenaSize/2 + 20, y);
+                ctx.stroke();
+            }
 
-            vehicles.forEach(v => {
-                if (!v.alive) return;
-                ctx.save(); ctx.translate(v.x, v.y); ctx.rotate(v.angle);
-                ctx.fillStyle = v.color; ctx.fillRect(-35, -15, 70, 30);
-                ctx.fillStyle = 'black'; ctx.fillRect(-35, -15, 20, 30);
-                ctx.fillStyle = 'gray'; ctx.fillRect(20, -8, 30, 16);
-                ctx.fillStyle = 'red'; ctx.fillRect(-40, -10, 15, 20);
+            // Border walls (blue castle style)
+            ctx.fillStyle = '#1e90ff';
+            ctx.fillRect(0, 0, 900, 100); // top
+            ctx.fillRect(0, 550, 900, 100); // bottom
+            ctx.fillRect(0, 0, 150, 650); // left
+            ctx.fillRect(750, 0, 150, 650); // right
+
+            // Towers (simple)
+            ctx.fillStyle = '#00008b';
+            ctx.fillRect(50, 50, 100, 100);
+            ctx.fillRect(750, 50, 100, 100);
+            ctx.fillRect(50, 500, 100, 100);
+            ctx.fillRect(750, 500, 100, 100);
+
+            // Players
+            players.forEach(p => {
+                if (!p.alive) return;
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.angle);
+
+                // Mii-style character
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(0, 0, 25, 0, Math.PI*2);
+                ctx.fill();
+
+                // Eyes
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(-10, -8, 8, 0, Math.PI*2);
+                ctx.arc(10, -8, 8, 0, Math.PI*2);
+                ctx.fill();
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(-10, -8, 4, 0, Math.PI*2);
+                ctx.arc(10, -8, 4, 0, Math.PI*2);
+                ctx.fill();
+
+                // Back target (red circle)
+                ctx.fillStyle = 'red';
+                ctx.beginPath();
+                ctx.arc(0, 30, 15, 0, Math.PI*2);
+                ctx.fill();
+
                 ctx.restore();
-                ctx.fillStyle = 'white'; ctx.font = 'bold 18px Fredoka'; ctx.textAlign = 'center'; ctx.fillText(v.name, v.x, v.y + 50);
+
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 20px Fredoka';
+                ctx.textAlign = 'center';
+                ctx.fillText(p.name, p.x, p.y + 60);
             });
 
+            // Shots
             shots.forEach(s => {
-                ctx.fillStyle = 'yellow'; ctx.beginPath(); ctx.arc(s.x, s.y, 6, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = 'yellow';
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, 8, 0, Math.PI*2);
+                ctx.fill();
             });
+
+            // Timer
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 60px Chewy';
+            ctx.textAlign = 'center';
+            ctx.fillText(Math.ceil(timer), centerX, centerY - arenaSize/2 - 50);
+
+            // Castle roof (rainbow)
+            ctx.fillStyle = '#ff69b4';
+            ctx.fillRect(centerX - 100, 0, 200, 50);
+            ctx.fillStyle = '#ffd700';
+            ctx.fillRect(centerX - 80, 0, 160, 40);
+            ctx.fillStyle = '#00a1d6';
+            ctx.fillRect(centerX - 60, 0, 120, 30);
         }
 
-        // Friendly Face-Off
+        // Friendly Face-Off (kept simple)
         let puzzles = [];
         function initFriendlyFaceOff() {
             puzzles = Array(4).fill().map((_, i) => ({
@@ -534,7 +621,6 @@
                     else if (piece.id === 1) { ctx.fillRect(-30, -20, 20, 20); ctx.fillRect(10, -20, 20, 20); } // Eyes
                     else if (piece.id === 2) { ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(-10, 20); ctx.lineTo(10, 20); ctx.fill(); } // Nose
                     else if (piece.id === 3) ctx.fillRect(-25, 20, 50, 15); // Mouth
-                    // Add more parts as needed
                     ctx.restore();
                 });
             });
@@ -542,18 +628,24 @@
 
         function gameLoop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if (currentGame === 'zombie-tag') { updateZombieTag(); drawZombieTag(); }
-            if (currentGame === 'back-attack') { updateBackAttack(); drawBackAttack(); }
-            if (currentGame === 'friendly-face-off') { updateFriendlyFaceOff(); drawFriendlyFaceOff(); }
+
+            if (currentGame === 'zombie-tag') {
+                updateZombieTag();
+                drawZombieTag();
+            } else if (currentGame === 'back-attack') {
+                updateBackAttack();
+                drawBackAttack();
+            } else if (currentGame === 'friendly-face-off') {
+                updateFriendlyFaceOff();
+                drawFriendlyFaceOff();
+            }
+
             requestAnimationFrame(gameLoop);
         }
 
         // Helpers
-        function distance(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
-        function moveTowards(from, to, speed) {
-            let dx = to.x - from.x, dy = to.y - from.y;
-            let dist = Math.hypot(dx, dy);
-            if (dist > 0) { from.x += (dx / dist) * speed; from.y += (dy / dist) * speed; }
+        function distance(a, b) {
+            return Math.hypot(a.x - b.x, a.y - b.y);
         }
     </script>
 </body>
