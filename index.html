@@ -20,14 +20,6 @@
             align-items: center;
         }
 
-        #game-canvas {
-            display: none;
-            border: 8px solid #ff6b81;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            image-rendering: pixelated; /* Wii-style crispness */
-        }
-
         .menu-container {
             width: 900px;
             height: 650px;
@@ -40,14 +32,205 @@
             border: 8px solid #ff6b81;
         }
 
-        /* ... (keep your previous menu styles) ... */
+        #game-canvas {
+            display: none;
+            border: 8px solid #ff6b81;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            image-rendering: pixelated;
+        }
+
+        .title {
+            font-family: 'Chewy', cursive;
+            font-size: 64px;
+            color: #ff4757;
+            text-align: center;
+            margin: 0 0 20px 0;
+            text-shadow: 3px 3px 0 #ffeaa7, 5px 5px 0 #ff7675;
+            letter-spacing: 4px;
+        }
+
+        .avatars {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 5px solid #fff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            background-size: cover;
+            background-position: center;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .game-thumbnail {
+            position: relative;
+            width: 100%;
+            height: 140px;
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            background-size: cover;
+            background-position: center;
+            border: 6px solid #fff;
+        }
+
+        .game-thumbnail:hover {
+            transform: scale(1.1) rotate(3deg);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border-color: #ff6b81;
+        }
+
+        .check {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 32px;
+            color: #2ecc71;
+            text-shadow: 0 0 10px #fff;
+        }
+
+        .game-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 10px;
+            font-size: 18px;
+            text-align: center;
+            font-family: 'Bubblegum Sans', cursive;
+            letter-spacing: 1px;
+        }
+
+        .arrow {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 0;
+            height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-top: 25px solid #ff6b81;
+            transform: rotate(90deg);
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            position: absolute;
+            bottom: 30px;
+            left: 50px;
+            right: 50px;
+        }
+
+        .button {
+            padding: 15px 40px;
+            font-size: 28px;
+            font-family: 'Chewy', cursive;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .back {
+            background: #74b9ff;
+            color: white;
+            border: none;
+        }
+
+        .back:hover { background: #0984e3; transform: scale(1.1); }
+
+        .quit {
+            background: #ff6b81;
+            color: white;
+            border: none;
+        }
+
+        .quit:hover { background: #e84393; transform: scale(1.1); }
+
+        .teams {
+            background: #a29bfe;
+            color: white;
+            border: none;
+        }
+
+        .teams:hover { background: #6c5ce7; transform: scale(1.1); }
+
+        .pointer {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: url('https://img.icons8.com/fluency/96/000000/pointer.png') no-repeat center;
+            background-size: contain;
+            pointer-events: none;
+            animation: bounce 1.5s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
     </style>
 </head>
 <body>
     <div class="menu-container">
-        <!-- Your previous menu HTML here -->
         <h1 class="title">ASDW Party!</h1>
-        <!-- avatars, games-grid, buttons, etc. -->
+        
+        <div class="avatars">
+            <div class="avatar" style="background-image: url('https://images.nintendolife.com/6bbafc9ba19ce/large.jpg');"></div>
+            <div class="avatar" style="background-image: url('https://nintendoeverything.com/wp-content/uploads/miis.jpg');"></div>
+            <div class="avatar" style="background-image: url('http://www.infendo.com/wp-content/uploads/2018/03/f0e584e409608ad6-640x360.png');"></div>
+            <div class="avatar" style="background-image: url('https://images.nintendolife.com/6bbafc9ba19ce/large.jpg');"></div>
+        </div>
+
+        <div class="games-grid">
+            <div class="game-thumbnail" onclick="startGame('zombie-tag')" style="background-image: url('https://static.wikia.nocookie.net/w__/images/e/e4/Zombie_Tag_HR.jpg/revision/latest/scale-to-width-down/1200?cb=20200908224710&path-prefix=wiisports');">
+                <div class="check">✔</div>
+                <div class="game-label">Zombie Tag</div>
+            </div>
+            <div class="game-thumbnail" onclick="startGame('back-attack')" style="background-image: url('https://static.wikia.nocookie.net/w__/images/6/66/Back_Attack_HR.jpg/revision/latest?cb=20200923033839&path-prefix=wiisports');">
+                <div class="check">✔</div>
+                <div class="game-label">Back Attack</div>
+            </div>
+            <div class="game-thumbnail" onclick="startGame('friendly-face-off')" style="background-image: url('https://static.wikia.nocookie.net/w__/images/f/f8/Friendly_Face-Off_HR.jpg/revision/latest/scale-to-width-down/1200?cb=20200908224523&path-prefix=wiisports');">
+                <div class="check">✔</div>
+                <div class="game-label">Friendly Face-Off</div>
+            </div>
+            <div class="game-thumbnail" style="background: linear-gradient(135deg, #a29bfe, #74b9ff);">
+                <div class="game-label">Coming Soon</div>
+            </div>
+            <div class="game-thumbnail" style="background: linear-gradient(135deg, #ff9a9e, #fad0c4);"></div>
+            <div class="game-thumbnail" style="background: linear-gradient(135deg, #74b9ff, #a29bfe);"></div>
+            <div class="game-thumbnail" style="background: linear-gradient(135deg, #2ecc71, #27ae60);"></div>
+            <div class="game-thumbnail">
+                <div class="arrow"></div>
+            </div>
+        </div>
+
+        <div class="pointer" style="bottom: 120px; left: 650px;"></div>
+
+        <div class="buttons">
+            <button class="button back" onclick="quitGame()">↺</button>
+            <button class="button quit" onclick="quitGame()">Quit</button>
+            <button class="button teams">Teams</button>
+        </div>
     </div>
 
     <canvas id="game-canvas" width="900" height="650"></canvas>
@@ -57,7 +240,7 @@
         const canvas = document.getElementById('game-canvas');
         const ctx = canvas.getContext('2d');
 
-        // Wii Party style colors & fonts
+        // Wii colors
         const wiiBlue = '#00a1d6';
         const wiiPink = '#ff69b4';
         const wiiYellow = '#ffd700';
@@ -65,7 +248,6 @@
         const wiiRed = '#ff4500';
         const wiiPurple = '#8a2be2';
 
-        // Shared game variables
         let currentGame = null;
         const keys = {};
         window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
@@ -75,7 +257,7 @@
             menu.style.display = 'none';
             canvas.style.display = 'block';
             currentGame = gameType;
-            ctx.imageSmoothingEnabled = false; // Pixel perfect look
+            ctx.imageSmoothingEnabled = false;
             if (gameType === 'zombie-tag') initZombieTag();
             if (gameType === 'back-attack') initBackAttack();
             if (gameType === 'friendly-face-off') initFriendlyFaceOff();
@@ -90,12 +272,9 @@
 
         function quitGame() { location.reload(); }
 
-        // =====================================
-        // Zombie Tag - Aesthetic Wii Style
-        // =====================================
+        // Zombie Tag
         let zombies = [];
         let humans = [];
-
         function initZombieTag() {
             humans = [
                 { x: 200, y: 200, color: wiiBlue, speed: 4, isZombie: false, name: 'P1' },
@@ -103,25 +282,23 @@
                 { x: 200, y: 500, color: wiiGreen, speed: 4, isZombie: false, name: 'P3' },
                 { x: 700, y: 500, color: wiiYellow, speed: 4, isZombie: false, name: 'P4' }
             ];
-            zombies = [
-                { x: 450, y: 325, color: wiiPurple, speed: 3.2 }
-            ];
+            zombies = [{ x: 450, y: 325, color: wiiPurple, speed: 3.2 }];
         }
 
         function updateZombieTag() {
-            // Player 1: WASD
+            // P1 WASD
             if (keys['a']) humans[0].x -= humans[0].speed;
             if (keys['d']) humans[0].x += humans[0].speed;
             if (keys['w']) humans[0].y -= humans[0].speed;
             if (keys['s']) humans[0].y += humans[0].speed;
 
-            // Player 2: Arrow keys
+            // P2 Arrows
             if (keys['arrowleft']) humans[1].x -= humans[1].speed;
             if (keys['arrowright']) humans[1].x += humans[1].speed;
             if (keys['arrowup']) humans[1].y -= humans[1].speed;
             if (keys['arrowdown']) humans[1].y += humans[1].speed;
 
-            // AI for P3 & P4 (simple random movement)
+            // AI for P3/P4
             [2,3].forEach(i => {
                 if (Math.random() < 0.05) humans[i].dx = (Math.random()-0.5)*2;
                 if (Math.random() < 0.05) humans[i].dy = (Math.random()-0.5)*2;
@@ -129,17 +306,15 @@
                 humans[i].y += (humans[i].dy || 0) * humans[i].speed;
             });
 
-            // Zombies chase nearest human
             zombies.forEach(z => {
                 let closest = humans.reduce((best, h) => {
                     if (h.isZombie) return best;
                     let d = distance(z, h);
                     return d < distance(z, best) ? h : best;
-                }, {x:0,y:0});
+                }, humans[0]);
                 moveTowards(z, closest, z.speed);
             });
 
-            // Collision: turn human into zombie
             humans.forEach(h => {
                 if (h.isZombie) return;
                 [...zombies, ...humans.filter(p => p.isZombie)].forEach(z => {
@@ -150,70 +325,35 @@
                 });
             });
 
-            // Boundary
             [...humans, ...zombies].forEach(p => {
                 p.x = Math.max(30, Math.min(870, p.x));
                 p.y = Math.max(30, Math.min(620, p.y));
             });
 
-            // Win condition
-            const remainingHumans = humans.filter(h => !h.isZombie);
-            if (remainingHumans.length <= 1) {
-                alert(remainingHumans.length === 1 ? `${remainingHumans[0].name} wins!` : "Everyone's a zombie!");
+            if (humans.filter(h => !h.isZombie).length <= 1) {
+                alert('Game Over!');
                 backToMenu();
             }
         }
 
         function drawZombieTag() {
-            // Wii-style graveyard background
-            ctx.fillStyle = '#1e1e2f';
-            ctx.fillRect(0, 0, 900, 650);
+            ctx.fillStyle = '#1e1e2f'; ctx.fillRect(0, 0, 900, 650);
+            ctx.fillStyle = '#f0f8ff'; ctx.beginPath(); ctx.arc(750, 100, 80, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#2e8b57'; ctx.fillRect(0, 550, 900, 100);
 
-            // Moon & clouds
-            ctx.fillStyle = '#f0f8ff';
-            ctx.beginPath();
-            ctx.arc(750, 100, 80, 0, Math.PI*2);
-            ctx.fill();
-
-            // Simple grass
-            ctx.fillStyle = '#2e8b57';
-            ctx.fillRect(0, 550, 900, 100);
-
-            // Draw players
             [...humans, ...zombies].forEach(p => {
                 ctx.fillStyle = p.isZombie ? wiiPurple : p.color;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 20, 0, Math.PI*2);
-                ctx.fill();
-
-                // Eyes
-                ctx.fillStyle = 'white';
-                ctx.beginPath();
-                ctx.arc(p.x-8, p.y-5, 6, 0, Math.PI*2);
-                ctx.arc(p.x+8, p.y-5, 6, 0, Math.PI*2);
-                ctx.fill();
-
-                ctx.fillStyle = 'black';
-                ctx.beginPath();
-                ctx.arc(p.x-8, p.y-5, 3, 0, Math.PI*2);
-                ctx.arc(p.x+8, p.y-5, 3, 0, Math.PI*2);
-                ctx.fill();
-
-                // Name
-                ctx.fillStyle = 'white';
-                ctx.font = 'bold 18px Fredoka';
-                ctx.textAlign = 'center';
-                ctx.fillText(p.name || '', p.x, p.y + 40);
+                ctx.beginPath(); ctx.arc(p.x, p.y, 20, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(p.x-8, p.y-5, 6, 0, Math.PI*2); ctx.arc(p.x+8, p.y-5, 6, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(p.x-8, p.y-5, 3, 0, Math.PI*2); ctx.arc(p.x+8, p.y-5, 3, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = 'white'; ctx.font = 'bold 18px Fredoka'; ctx.textAlign = 'center'; ctx.fillText(p.name || '', p.x, p.y + 40);
             });
         }
 
-        // =====================================
-        // Back Attack - Railroad Tracks Version
-        // =====================================
+        // Back Attack (Railroads)
         let vehicles = [];
         let shots = [];
         let trackSegments = [];
-
         function initBackAttack() {
             vehicles = [
                 { x: 300, y: 200, angle: 0, color: wiiBlue, alive: true, name: 'P1' },
@@ -221,8 +361,6 @@
                 { x: 300, y: 450, angle: 0, color: wiiGreen, alive: true, name: 'P3' },
                 { x: 600, y: 450, angle: 0, color: wiiYellow, alive: true, name: 'P4' }
             ];
-
-            // Railroad tracks (Wii-style loops & turns)
             trackSegments = [
                 { type: 'straight', x1: 150, y1: 100, x2: 750, y2: 100, dir: 'right' },
                 { type: 'curve', cx: 750, cy: 100, r: 100, startAngle: Math.PI*1.5, endAngle: Math.PI*0.5, dir: 'down' },
@@ -233,218 +371,132 @@
                 { type: 'straight', x1: 150, y1: 450, x2: 150, y2: 200, dir: 'up' },
                 { type: 'curve', cx: 150, cy: 200, r: 100, startAngle: Math.PI*1.5, endAngle: Math.PI*0.5, dir: 'down' }
             ];
-
-            // Start vehicles on tracks
-            vehicles.forEach((v, i) => {
-                v.onTrack = true;
-                v.trackIndex = i % trackSegments.length;
-                v.progress = 0.5;
-            });
+            vehicles.forEach((v, i) => { v.onTrack = true; v.trackIndex = i % trackSegments.length; v.progress = 0.5; });
         }
 
         function updateBackAttack() {
             vehicles.forEach(v => {
                 if (!v.alive) return;
-
-                // Force movement along track
                 if (v.onTrack) {
                     let seg = trackSegments[v.trackIndex];
-                    v.progress += 0.005; // Constant speed
-
+                    v.progress += 0.005;
                     if (v.progress >= 1) {
                         v.progress = 0;
                         v.trackIndex = (v.trackIndex + 1) % trackSegments.length;
-                        seg = trackSegments[v.trackIndex];
                     }
-
                     if (seg.type === 'straight') {
                         let dx = seg.x2 - seg.x1;
                         let dy = seg.y2 - seg.y1;
                         v.x = seg.x1 + dx * v.progress;
                         v.y = seg.y1 + dy * v.progress;
                         v.angle = Math.atan2(dy, dx);
-                    } else { // curve
+                    } else {
                         let angle = seg.startAngle + (seg.endAngle - seg.startAngle) * v.progress;
                         v.x = seg.cx + Math.cos(angle) * seg.r;
                         v.y = seg.cy + Math.sin(angle) * seg.r;
-                        v.angle = angle + Math.PI/2; // tangent
+                        v.angle = angle + Math.PI/2;
                     }
                 }
-
-                // Turning: only when at curve or straight allows
                 if (keys['a'] || keys['arrowleft']) v.angle -= 0.05;
                 if (keys['d'] || keys['arrowright']) v.angle += 0.05;
 
-                // Shooting (P1 Space, P2 Enter)
                 if ((keys[' '] && v === vehicles[0]) || (keys['enter'] && v === vehicles[1])) {
-                    shots.push({
-                        x: v.x + Math.cos(v.angle) * 30,
-                        y: v.y + Math.sin(v.angle) * 30,
-                        angle: v.angle,
-                        owner: v
-                    });
+                    shots.push({ x: v.x + Math.cos(v.angle) * 30, y: v.y + Math.sin(v.angle) * 30, angle: v.angle, owner: v });
                     keys[' '] = keys['enter'] = false;
                 }
             });
 
-            // Update shots
             shots = shots.filter(s => {
                 s.x += Math.cos(s.angle) * 8;
                 s.y += Math.sin(s.angle) * 8;
                 return s.x > 0 && s.x < 900 && s.y > 0 && s.y < 650;
             });
 
-            // Check hits (back of vehicle)
             vehicles.forEach(v => {
                 if (!v.alive) return;
                 shots.forEach(s => {
                     if (s.owner === v) return;
                     let backX = v.x - Math.cos(v.angle) * 25;
                     let backY = v.y - Math.sin(v.angle) * 25;
-                    if (distance({x:backX, y:backY}, s) < 15) {
-                        v.alive = false;
-                        shots = shots.filter(shot => shot !== s);
-                    }
+                    if (distance({x:backX, y:backY}, s) < 15) v.alive = false;
                 });
             });
 
-            // Win
-            const alive = vehicles.filter(v => v.alive);
-            if (alive.length <= 1) {
-                alert(alive.length === 1 ? `${alive[0].name} wins!` : "Tie!");
+            if (vehicles.filter(v => v.alive).length <= 1) {
+                alert('Game Over!');
                 backToMenu();
             }
         }
 
         function drawBackAttack() {
-            // Wii Party arena style
-            ctx.fillStyle = '#87ceeb';
-            ctx.fillRect(0, 0, 900, 650);
+            ctx.fillStyle = '#87ceeb'; ctx.fillRect(0, 0, 900, 650);
+            ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(200, 80, 60, 0, Math.PI*2); ctx.arc(250, 60, 80, 0, Math.PI*2); ctx.arc(300, 80, 60, 0, Math.PI*2); ctx.fill();
 
-            // Clouds
-            ctx.fillStyle = 'white';
-            ctx.beginPath();
-            ctx.arc(200, 80, 60, 0, Math.PI*2);
-            ctx.arc(250, 60, 80, 0, Math.PI*2);
-            ctx.arc(300, 80, 60, 0, Math.PI*2);
-            ctx.fill();
-
-            // Draw tracks
-            ctx.strokeStyle = '#8b4513';
-            ctx.lineWidth = 20;
+            ctx.strokeStyle = '#8b4513'; ctx.lineWidth = 20;
             trackSegments.forEach(seg => {
                 ctx.beginPath();
-                if (seg.type === 'straight') {
-                    ctx.moveTo(seg.x1, seg.y1);
-                    ctx.lineTo(seg.x2, seg.y2);
-                } else {
-                    ctx.arc(seg.cx, seg.cy, seg.r, seg.startAngle, seg.endAngle);
-                }
+                if (seg.type === 'straight') ctx.moveTo(seg.x1, seg.y1), ctx.lineTo(seg.x2, seg.y2);
+                else ctx.arc(seg.cx, seg.cy, seg.r, seg.startAngle, seg.endAngle);
                 ctx.stroke();
             });
 
-            // Draw vehicles
             vehicles.forEach(v => {
                 if (!v.alive) return;
-                ctx.save();
-                ctx.translate(v.x, v.y);
-                ctx.rotate(v.angle);
-
-                // Train-like body
-                ctx.fillStyle = v.color;
-                ctx.fillRect(-35, -15, 70, 30);
-                ctx.fillStyle = 'black';
-                ctx.fillRect(-35, -15, 20, 30); // Cabin
-
-                // Cannon
-                ctx.fillStyle = 'gray';
-                ctx.fillRect(20, -8, 30, 16);
-
-                // Back target
-                ctx.fillStyle = 'red';
-                ctx.fillRect(-40, -10, 15, 20);
-
+                ctx.save(); ctx.translate(v.x, v.y); ctx.rotate(v.angle);
+                ctx.fillStyle = v.color; ctx.fillRect(-35, -15, 70, 30);
+                ctx.fillStyle = 'black'; ctx.fillRect(-35, -15, 20, 30);
+                ctx.fillStyle = 'gray'; ctx.fillRect(20, -8, 30, 16);
+                ctx.fillStyle = 'red'; ctx.fillRect(-40, -10, 15, 20);
                 ctx.restore();
-
-                ctx.fillStyle = 'white';
-                ctx.font = 'bold 18px Fredoka';
-                ctx.textAlign = 'center';
-                ctx.fillText(v.name, v.x, v.y + 50);
+                ctx.fillStyle = 'white'; ctx.font = 'bold 18px Fredoka'; ctx.textAlign = 'center'; ctx.fillText(v.name, v.x, v.y + 50);
             });
 
-            // Shots
             shots.forEach(s => {
-                ctx.fillStyle = 'yellow';
-                ctx.beginPath();
-                ctx.arc(s.x, s.y, 6, 0, Math.PI*2);
-                ctx.fill();
+                ctx.fillStyle = 'yellow'; ctx.beginPath(); ctx.arc(s.x, s.y, 6, 0, Math.PI*2); ctx.fill();
             });
         }
 
-        // =====================================
-        // Friendly Face-Off - Puzzle Style
-        // =====================================
+        // Friendly Face-Off
         let puzzles = [];
-
         function initFriendlyFaceOff() {
-            // Simple 3x3 grid puzzle (face parts)
             puzzles = Array(4).fill().map((_, i) => ({
                 color: [wiiBlue, wiiRed, wiiGreen, wiiYellow][i],
-                pieces: Array.from({length: 9}, (_, j) => ({
-                    id: j,
-                    x: Math.random()*800 + 50,
-                    y: Math.random()*500 + 50,
-                    rotation: 0,
-                    placed: false
-                })),
+                pieces: Array.from({length: 9}, (_, j) => ({ id: j, x: Math.random()*800 + 50, y: Math.random()*500 + 50, rotation: 0, placed: false })),
                 name: ['P1','P2','P3','P4'][i]
             }));
         }
 
         let selected = null;
-
         canvas.addEventListener('mousedown', e => {
             if (currentGame !== 'friendly-face-off') return;
             const rect = canvas.getBoundingClientRect();
             const mx = e.clientX - rect.left;
             const my = e.clientY - rect.top;
-
-            puzzles[0].pieces.forEach(p => { // Player 1 mouse control
-                if (!p.placed && Math.hypot(p.x - mx, p.y - my) < 40) {
-                    selected = p;
-                }
+            puzzles[0].pieces.forEach(p => {
+                if (!p.placed && Math.hypot(p.x - mx, p.y - my) < 40) selected = p;
             });
         });
-
         canvas.addEventListener('mousemove', e => {
             if (!selected) return;
             const rect = canvas.getBoundingClientRect();
             selected.x = e.clientX - rect.left;
             selected.y = e.clientY - rect.top;
         });
-
         canvas.addEventListener('mouseup', () => {
             if (!selected) return;
-            // Snap to grid if close
             const gridX = 150 + Math.round((selected.x - 150)/80)*80;
             const gridY = 150 + Math.round((selected.y - 150)/80)*80;
             if (Math.hypot(selected.x - gridX, selected.y - gridY) < 60) {
-                selected.x = gridX;
-                selected.y = gridY;
-                selected.placed = true;
+                selected.x = gridX; selected.y = gridY; selected.placed = true;
             }
             selected = null;
         });
-
         canvas.addEventListener('wheel', e => {
-            if (selected) {
-                selected.rotation += e.deltaY > 0 ? Math.PI/2 : -Math.PI/2;
-                e.preventDefault();
-            }
+            if (selected) selected.rotation += e.deltaY > 0 ? Math.PI/2 : -Math.PI/2;
+            e.preventDefault();
         });
 
         function updateFriendlyFaceOff() {
-            // AI players slowly place pieces
             puzzles.slice(1).forEach(puz => {
                 if (Math.random() < 0.005 && puz.pieces.some(p => !p.placed)) {
                     let unplaced = puz.pieces.filter(p => !p.placed);
@@ -456,7 +508,6 @@
                 }
             });
 
-            // Check win
             puzzles.forEach((puz, i) => {
                 if (puz.pieces.every(p => p.placed)) {
                     alert(`${puz.name} completed their face!`);
@@ -466,88 +517,43 @@
         }
 
         function drawFriendlyFaceOff() {
-            ctx.fillStyle = '#fffacd';
-            ctx.fillRect(0, 0, 900, 650);
-
-            // Cute background
-            ctx.fillStyle = '#add8e6';
-            ctx.fillRect(0, 0, 900, 300);
-            ctx.fillStyle = '#90ee90';
-            ctx.fillRect(0, 300, 900, 350);
+            ctx.fillStyle = '#fffacd'; ctx.fillRect(0, 0, 900, 650);
+            ctx.fillStyle = '#add8e6'; ctx.fillRect(0, 0, 900, 300);
+            ctx.fillStyle = '#90ee90'; ctx.fillRect(0, 300, 900, 350);
 
             puzzles.forEach((puz, i) => {
                 let offsetX = 100 + i * 220;
                 let offsetY = 150;
-
-                // Board
-                ctx.strokeStyle = puz.color;
-                ctx.lineWidth = 8;
-                ctx.strokeRect(offsetX-10, offsetY-10, 240, 240);
-
-                // Title
-                ctx.fillStyle = puz.color;
-                ctx.font = 'bold 24px Chewy';
-                ctx.textAlign = 'center';
-                ctx.fillText(`${puz.name}'s Face`, offsetX + 120, offsetY - 30);
+                ctx.strokeStyle = puz.color; ctx.lineWidth = 8; ctx.strokeRect(offsetX-10, offsetY-10, 240, 240);
+                ctx.fillStyle = puz.color; ctx.font = 'bold 24px Chewy'; ctx.textAlign = 'center'; ctx.fillText(`${puz.name}'s Face`, offsetX + 120, offsetY - 30);
 
                 puz.pieces.forEach(piece => {
-                    ctx.save();
-                    ctx.translate(piece.x, piece.y);
-                    ctx.rotate(piece.rotation);
-
-                    // Face parts (simple shapes)
+                    ctx.save(); ctx.translate(piece.x, piece.y); ctx.rotate(piece.rotation);
                     ctx.fillStyle = puz.color;
-                    if (piece.id === 0) { // Hair
-                        ctx.fillRect(-40, -60, 80, 60);
-                    } else if (piece.id === 1) { // Eyes
-                        ctx.fillRect(-30, -20, 20, 20);
-                        ctx.fillRect(10, -20, 20, 20);
-                    } else if (piece.id === 2) { // Nose
-                        ctx.beginPath();
-                        ctx.moveTo(0, -10);
-                        ctx.lineTo(-10, 20);
-                        ctx.lineTo(10, 20);
-                        ctx.fill();
-                    } else if (piece.id === 3) { // Mouth
-                        ctx.fillRect(-25, 20, 50, 15);
-                    } // ... etc.
-
+                    if (piece.id === 0) ctx.fillRect(-40, -60, 80, 60); // Hair
+                    else if (piece.id === 1) { ctx.fillRect(-30, -20, 20, 20); ctx.fillRect(10, -20, 20, 20); } // Eyes
+                    else if (piece.id === 2) { ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(-10, 20); ctx.lineTo(10, 20); ctx.fill(); } // Nose
+                    else if (piece.id === 3) ctx.fillRect(-25, 20, 50, 15); // Mouth
+                    // Add more parts as needed
                     ctx.restore();
                 });
             });
         }
 
-        // Helpers
-        function distance(a, b) {
-            return Math.hypot(a.x - b.x, a.y - b.y);
-        }
-
-        function moveTowards(from, to, speed) {
-            let dx = to.x - from.x;
-            let dy = to.y - from.y;
-            let dist = Math.hypot(dx, dy);
-            if (dist > 0) {
-                from.x += (dx / dist) * speed;
-                from.y += (dy / dist) * speed;
-            }
-        }
-
-        // Game loop
         function gameLoop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            if (currentGame === 'zombie-tag') {
-                updateZombieTag();
-                drawZombieTag();
-            } else if (currentGame === 'back-attack') {
-                updateBackAttack();
-                drawBackAttack();
-            } else if (currentGame === 'friendly-face-off') {
-                updateFriendlyFaceOff();
-                drawFriendlyFaceOff();
-            }
-
+            if (currentGame === 'zombie-tag') { updateZombieTag(); drawZombieTag(); }
+            if (currentGame === 'back-attack') { updateBackAttack(); drawBackAttack(); }
+            if (currentGame === 'friendly-face-off') { updateFriendlyFaceOff(); drawFriendlyFaceOff(); }
             requestAnimationFrame(gameLoop);
+        }
+
+        // Helpers
+        function distance(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+        function moveTowards(from, to, speed) {
+            let dx = to.x - from.x, dy = to.y - from.y;
+            let dist = Math.hypot(dx, dy);
+            if (dist > 0) { from.x += (dx / dist) * speed; from.y += (dy / dist) * speed; }
         }
     </script>
 </body>
