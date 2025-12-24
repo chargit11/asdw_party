@@ -9,31 +9,97 @@
       margin: 0;
       padding: 0;
       height: 100%;
-      overflow: hidden; /* Prevents scrolling if image is exactly full-screen */
+      overflow: hidden;
+      background-color: #ffd700; /* Light yellow fallback */
+      font-family: Arial, Helvetica, sans-serif;
     }
+
     .hero {
-      height: 100vh; /* Full viewport height */
-      background-image: url('home.png'); /* Replace with your image filename or URL */
-      background-size: cover; /* Scales to cover the screen */
-      background-position: center; /* Centers the image */
+      height: 100vh;
+      background-image: url('home.png'); /* Your pixel art image */
+      background-size: cover;
+      background-position: center;
       background-repeat: no-repeat;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-end; /* Align button at bottom */
+      position: relative;
     }
-    .hero a {
-      display: block;
+
+    /* Scrolling floor effect */
+    .hero::before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 200%; /* Twice the width for seamless loop */
+      height: 100%;
+      background: url('home.png') center bottom / auto 100% repeat-x;
+      background-size: auto 100%; /* Keeps pixel aspect */
+      animation: scrollFloor 60s linear infinite; /* Slow scroll: 60s per cycle */
+      pointer-events: none; /* Don't block clicks */
+      z-index: -1;
+    }
+
+    @keyframes scrollFloor {
+      from {
+        transform: translateX(0);
+      }
+      to {
+        transform: translateX(-50%); /* Moves half the doubled width */
+      }
+    }
+
+    /* Clickable overlay (whole screen) */
+    .hero a.fullscreen {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
-      cursor: pointer; /* Hand cursor on hover */
+      cursor: pointer;
+    }
+
+    /* Main Menu button */
+    .menu-button {
+      position: relative;
+      padding: 20px 60px;
+      margin-bottom: 10vh; /* Space from bottom */
+      background: linear-gradient(to bottom, #ffcc00, #ff9900);
+      border: 4px solid #000;
+      border-radius: 20px;
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #000;
+      text-shadow: 2px 2px 0 #fff;
+      box-shadow: 0 8px 0 #c97e00, 0 10px 15px rgba(0,0,0,0.4);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      z-index: 10;
+      user-select: none;
+    }
+
+    .menu-button:hover {
+      background: linear-gradient(to bottom, #e6b800, #e68a00);
+      box-shadow: 0 6px 0 #b36e00, 0 8px 12px rgba(0,0,0,0.6);
+      transform: translateY(2px); /* Slight press effect */
+      filter: brightness(0.85) contrast(1.1); /* Darkens + pops */
+    }
+
+    .menu-button:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #b36e00, 0 4px 8px rgba(0,0,0,0.6);
     }
   </style>
 </head>
 <body>
   <div class="hero">
-    <a href="https://example.com/next-page" target="_blank" rel="noopener noreferrer">
-      <!-- The empty link covers the whole area – click anywhere to go -->
-    </a>
+    <!-- Full-screen clickable area (if you want clicks anywhere to go somewhere) -->
+    <!-- <a href="/next-page" class="fullscreen"></a> -->
+
+    <!-- The button -->
+    <a href="/games" class="menu-button">Main Menu</a>
   </div>
 </body>
 </html>
