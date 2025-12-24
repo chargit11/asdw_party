@@ -1,652 +1,295 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASDW Party</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&family=Chewy&family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
-            font-family: 'Fredoka', sans-serif;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .menu-container {
-            width: 900px;
-            height: 650px;
-            background: rgba(255, 255, 255, 0.85);
-            border-radius: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            padding: 30px;
-            position: relative;
-            overflow: hidden;
-            border: 8px solid #ff6b81;
-        }
-
-        #game-canvas {
-            display: none;
-            border: 8px solid #ff6b81;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            image-rendering: pixelated;
-        }
-
-        .title {
-            font-family: 'Chewy', cursive;
-            font-size: 64px;
-            color: #ff4757;
-            text-align: center;
-            margin: 0 0 20px 0;
-            text-shadow: 3px 3px 0 #ffeaa7, 5px 5px 0 #ff7675;
-            letter-spacing: 4px;
-        }
-
-        .avatars {
-            display: flex;
-            justify-content: flex-end;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .avatar {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            border: 5px solid #fff;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            background-size: cover;
-            background-position: center;
-        }
-
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-
-        .game-thumbnail {
-            position: relative;
-            width: 100%;
-            height: 140px;
-            border-radius: 20px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            background-size: cover;
-            background-position: center;
-            border: 6px solid #fff;
-        }
-
-        .game-thumbnail:hover {
-            transform: scale(1.1) rotate(3deg);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            border-color: #ff6b81;
-        }
-
-        .check {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            font-size: 32px;
-            color: #2ecc71;
-            text-shadow: 0 0 10px #fff;
-        }
-
-        .game-label {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(0,0,0,0.6);
-            color: white;
-            padding: 10px;
-            font-size: 18px;
-            text-align: center;
-            font-family: 'Bubblegum Sans', cursive;
-            letter-spacing: 1px;
-        }
-
-        .arrow {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            width: 0;
-            height: 0;
-            border-left: 25px solid transparent;
-            border-right: 25px solid transparent;
-            border-top: 25px solid #ff6b81;
-            transform: rotate(90deg);
-            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
-        }
-
-        .buttons {
-            display: flex;
-            justify-content: space-between;
-            position: absolute;
-            bottom: 30px;
-            left: 50px;
-            right: 50px;
-        }
-
-        .button {
-            padding: 15px 40px;
-            font-size: 28px;
-            font-family: 'Chewy', cursive;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .back {
-            background: #74b9ff;
-            color: white;
-            border: none;
-        }
-
-        .back:hover { background: #0984e3; transform: scale(1.1); }
-
-        .quit {
-            background: #ff6b81;
-            color: white;
-            border: none;
-        }
-
-        .quit:hover { background: #e84393; transform: scale(1.1); }
-
-        .teams {
-            background: #a29bfe;
-            color: white;
-            border: none;
-        }
-
-        .teams:hover { background: #6c5ce7; transform: scale(1.1); }
-
-        .pointer {
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            background: url('https://img.icons8.com/fluency/96/000000/pointer.png') no-repeat center;
-            background-size: contain;
-            pointer-events: none;
-            animation: bounce 1.5s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hedge Maze Runner - Stardew Valley Style</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #111;
+      font-family: Arial, Helvetica, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #fff;
+    }
+    #game-container {
+      position: relative;
+      border: 8px solid #8b5a2b;
+      box-shadow: 0 0 30px rgba(0,0,0,0.8);
+    }
+    canvas {
+      image-rendering: pixelated; /* crisp pixels */
+      display: block;
+    }
+    #ui {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
+      padding: 10px 30px;
+      border-radius: 12px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #ffd700;
+      text-shadow: 2px 2px 4px #000;
+      pointer-events: none;
+    }
+    #game-over, #win-screen {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.85);
+      padding: 40px 60px;
+      border-radius: 16px;
+      text-align: center;
+      color: #fff;
+      font-size: 48px;
+      font-weight: bold;
+      text-shadow: 3px 3px 6px #000;
+      display: none;
+      pointer-events: none;
+    }
+    #game-over {
+      color: #ff4444;
+    }
+    #win-screen {
+      color: #44ff44;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 30px;
+      font-size: 24px;
+      background: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+    button:hover {
+      background: #45a049;
+    }
+  </style>
 </head>
 <body>
-    <div class="menu-container">
-        <h1 class="title">ASDW Party!</h1>
-        
-        <div class="avatars">
-            <div class="avatar" style="background-image: url('https://images.nintendolife.com/6bbafc9ba19ce/large.jpg');"></div>
-            <div class="avatar" style="background-image: url('https://nintendoeverything.com/wp-content/uploads/miis.jpg');"></div>
-            <div class="avatar" style="background-image: url('http://www.infendo.com/wp-content/uploads/2018/03/f0e584e409608ad6-640x360.png');"></div>
-            <div class="avatar" style="background-image: url('https://images.nintendolife.com/6bbafc9ba19ce/large.jpg');"></div>
-        </div>
 
-        <div class="games-grid">
-            <div class="game-thumbnail" onclick="startGame('zombie-tag')" style="background-image: url('https://static.wikia.nocookie.net/w__/images/e/e4/Zombie_Tag_HR.jpg/revision/latest/scale-to-width-down/1200?cb=20200908224710&path-prefix=wiisports');">
-                <div class="check">✔</div>
-                <div class="game-label">Zombie Tag</div>
-            </div>
-            <div class="game-thumbnail" onclick="startGame('back-attack')" style="background-image: url('https://static.wikia.nocookie.net/w__/images/6/66/Back_Attack_HR.jpg/revision/latest?cb=20200923033839&path-prefix=wiisports');">
-                <div class="check">✔</div>
-                <div class="game-label">Back Attack</div>
-            </div>
-            <div class="game-thumbnail" onclick="startGame('friendly-face-off')" style="background-image: url('https://static.wikia.nocookie.net/w__/images/f/f8/Friendly_Face-Off_HR.jpg/revision/latest/scale-to-width-down/1200?cb=20200908224523&path-prefix=wiisports');">
-                <div class="check">✔</div>
-                <div class="game-label">Friendly Face-Off</div>
-            </div>
-            <div class="game-thumbnail" style="background: linear-gradient(135deg, #a29bfe, #74b9ff);">
-                <div class="game-label">Coming Soon</div>
-            </div>
-            <div class="game-thumbnail" style="background: linear-gradient(135deg, #ff9a9e, #fad0c4);"></div>
-            <div class="game-thumbnail" style="background: linear-gradient(135deg, #74b9ff, #a29bfe);"></div>
-            <div class="game-thumbnail" style="background: linear-gradient(135deg, #2ecc71, #27ae60);"></div>
-            <div class="game-thumbnail">
-                <div class="arrow"></div>
-            </div>
-        </div>
+  <div id="game-container">
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <div id="ui">TIME: <span id="timer">58</span></div>
+    <div id="game-over">TIME'S UP!<br><button onclick="location.reload()">Play Again</button></div>
+    <div id="win-screen">YOU WIN!<br>Reached the Castle!<br><button onclick="location.reload()">Play Again</button></div>
+  </div>
 
-        <div class="pointer" style="bottom: 120px; left: 650px;"></div>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const TILE_SIZE = 40;
+    const SCREEN_WIDTH = 800;
+    const SCREEN_HEIGHT = 600;
 
-        <div class="buttons">
-            <button class="button back" onclick="quitGame()">↺</button>
-            <button class="button quit" onclick="quitGame()">Quit</button>
-            <button class="button teams">Teams</button>
-        </div>
-    </div>
+    // Colors matching the original image roughly
+    const COLOR_PATH = '#c88c50';
+    const COLOR_GROUND = '#8c5028';
+    const COLOR_HEDGE = '#287828';
+    const COLOR_BASE = '#3c64dc';
+    const COLOR_GRASS = '#50a050';
+    const COLOR_FLOWER = '#ffdc64';
+    const COLOR_CASTLE = '#6496dc';
+    const COLOR_PLAYER = '#dc3c3c';
 
-    <canvas id="game-canvas" width="900" height="650"></canvas>
+    // Maze layout (0=walkable, 1=hedge, 2=grass patch)
+    const maze = [
+      [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+      [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+      [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+      [3,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+      [3,0,1,0,1,0,0,2,0,0,0,0,0,0,0,0,0,0,0,3],
+      [3,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+      [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+      [3,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+      [3,0,1,0,1,0,0,2,0,0,0,0,0,0,0,0,0,0,0,3],
+      [3,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+      [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3],
+      [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    ];
 
-    <script>
-        const menu = document.querySelector('.menu-container');
-        const canvas = document.getElementById('game-canvas');
-        const ctx = canvas.getContext('2d');
+    let player = {
+      x: 9 * TILE_SIZE + TILE_SIZE / 2,
+      y: 10 * TILE_SIZE + TILE_SIZE / 2,
+      size: 24,
+      speed: 3
+    };
 
-        const wiiBlue = '#00a1d6';
-        const wiiPink = '#ff69b4';
-        const wiiYellow = '#ffd700';
-        const wiiGreen = '#32cd32';
-        const wiiRed = '#ff4500';
-        const wiiPurple = '#8a2be2';
+    const goal = {
+      x: 9 * TILE_SIZE + TILE_SIZE / 2,
+      y: 2 * TILE_SIZE + TILE_SIZE / 2
+    };
 
-        let currentGame = null;
-        const keys = {};
-        window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
-        window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+    let timeLeft = 58 * 1000; // ms
+    let startTime = performance.now();
+    let keys = {};
+    let gameOver = false;
+    let won = false;
 
-        function startGame(gameType) {
-            menu.style.display = 'none';
-            canvas.style.display = 'block';
-            currentGame = gameType;
-            ctx.imageSmoothingEnabled = false;
-            if (gameType === 'zombie-tag') initZombieTag();
-            if (gameType === 'back-attack') initBackAttack();
-            if (gameType === 'friendly-face-off') initFriendlyFaceOff();
-            requestAnimationFrame(gameLoop);
-        }
+    // Listen for key events
+    window.addEventListener('keydown', e => {
+      keys[e.key.toLowerCase()] = true;
+      if (gameOver && (e.key === ' ' || e.key === 'Enter')) location.reload();
+    });
+    window.addEventListener('keyup', e => {
+      keys[e.key.toLowerCase()] = false;
+    });
 
-        function backToMenu() {
-            menu.style.display = 'flex';
-            canvas.style.display = 'none';
-            currentGame = null;
-        }
+    function isWalkable(x, y) {
+      const tx = Math.floor(x / TILE_SIZE);
+      const ty = Math.floor(y / TILE_SIZE);
+      if (ty < 0 || ty >= maze.length || tx < 0 || tx >= maze[0].length) return false;
+      return maze[ty][tx] === 0;
+    }
 
-        function quitGame() { location.reload(); }
+    function update(dt) {
+      if (gameOver || won) return;
 
-        // Zombie Tag (kept similar, but can be improved later)
-        let zombies = [];
-        let humans = [];
-        function initZombieTag() {
-            humans = [
-                { x: 200, y: 200, color: wiiBlue, speed: 4, isZombie: false, name: 'P1' },
-                { x: 700, y: 200, color: wiiRed, speed: 4, isZombie: false, name: 'P2' },
-                { x: 200, y: 500, color: wiiGreen, speed: 4, isZombie: false, name: 'P3' },
-                { x: 700, y: 500, color: wiiYellow, speed: 4, isZombie: false, name: 'P4' }
-            ];
-            zombies = [{ x: 450, y: 325, color: wiiPurple, speed: 3.2 }];
-        }
+      let nx = player.x;
+      let ny = player.y;
 
-        function updateZombieTag() {
-            if (keys['a']) humans[0].x -= humans[0].speed;
-            if (keys['d']) humans[0].x += humans[0].speed;
-            if (keys['w']) humans[0].y -= humans[0].speed;
-            if (keys['s']) humans[0].y += humans[0].speed;
+      if (keys['a'] || keys['arrowleft']) nx -= player.speed;
+      if (keys['d'] || keys['arrowright']) nx += player.speed;
+      if (keys['w'] || keys['arrowup']) ny -= player.speed;
+      if (keys['s'] || keys['arrowdown']) ny += player.speed;
 
-            if (keys['arrowleft']) humans[1].x -= humans[1].speed;
-            if (keys['arrowright']) humans[1].x += humans[1].speed;
-            if (keys['arrowup']) humans[1].y -= humans[1].speed;
-            if (keys['arrowdown']) humans[1].y += humans[1].speed;
+      // Check collision (simple bounding box)
+      const r = player.size;
+      if (
+        isWalkable(nx - r, ny - r) &&
+        isWalkable(nx + r, ny - r) &&
+        isWalkable(nx - r, ny + r) &&
+        isWalkable(nx + r, ny + r)
+      ) {
+        player.x = nx;
+        player.y = ny;
+      }
 
-            [2,3].forEach(i => {
-                if (Math.random() < 0.05) humans[i].dx = (Math.random()-0.5)*2;
-                if (Math.random() < 0.05) humans[i].dy = (Math.random()-0.5)*2;
-                humans[i].x += (humans[i].dx || 0) * humans[i].speed;
-                humans[i].y += (humans[i].dy || 0) * humans[i].speed;
-            });
+      // Win check
+      const dist = Math.hypot(player.x - goal.x, player.y - goal.y);
+      if (dist < 40) {
+        won = true;
+        document.getElementById('win-screen').style.display = 'block';
+      }
 
-            zombies.forEach(z => {
-                let closest = humans.filter(h => !h.isZombie).reduce((best, h) => distance(z, h) < distance(z, best) ? h : best, humans[0]);
-                let dx = closest.x - z.x;
-                let dy = closest.y - z.y;
-                let dist = Math.hypot(dx, dy);
-                if (dist > 0) {
-                    z.x += (dx / dist) * z.speed;
-                    z.y += (dy / dist) * z.speed;
-                }
-            });
+      // Timer
+      const elapsed = performance.now() - startTime;
+      timeLeft = Math.max(0, 58 * 1000 - elapsed);
+      document.getElementById('timer').textContent = Math.ceil(timeLeft / 1000);
 
-            humans.forEach(h => {
-                if (h.isZombie) return;
-                [...zombies, ...humans.filter(p => p.isZombie)].forEach(z => {
-                    if (Math.hypot(h.x - z.x, h.y - z.y) < 25) {
-                        h.isZombie = true;
-                        zombies.push(h);
-                    }
-                });
-            });
+      if (timeLeft <= 0) {
+        gameOver = true;
+        document.getElementById('game-over').style.display = 'block';
+      }
+    }
 
-            [...humans, ...zombies].forEach(p => {
-                p.x = Math.max(30, Math.min(870, p.x));
-                p.y = Math.max(30, Math.min(620, p.y));
-            });
+    function draw() {
+      // Ground
+      ctx.fillStyle = COLOR_GROUND;
+      ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-            if (humans.filter(h => !h.isZombie).length <= 1) {
-                alert('Game Over!');
-                backToMenu();
-            }
-        }
+      // Sunset sky gradient
+      const gradient = ctx.createLinearGradient(0, 0, 0, SCREEN_HEIGHT / 2);
+      gradient.addColorStop(0, '#ffb478');
+      gradient.addColorStop(1, '#ff6e40');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT / 2);
 
-        function drawZombieTag() {
-            ctx.fillStyle = '#1e1e2f'; ctx.fillRect(0, 0, 900, 650);
-            ctx.fillStyle = '#f0f8ff'; ctx.beginPath(); ctx.arc(750, 100, 80, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#2e8b57'; ctx.fillRect(0, 550, 900, 100);
+      // Draw tiles
+      for (let y = 0; y < maze.length; y++) {
+        for (let x = 0; x < maze[y].length; x++) {
+          const tile = maze[y][x];
+          const px = x * TILE_SIZE;
+          const py = y * TILE_SIZE;
 
-            [...humans, ...zombies].forEach(p => {
-                ctx.fillStyle = p.isZombie ? wiiPurple : p.color;
-                ctx.beginPath(); ctx.arc(p.x, p.y, 20, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(p.x-8, p.y-5, 6, 0, Math.PI*2); ctx.arc(p.x+8, p.y-5, 6, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(p.x-8, p.y-5, 3, 0, Math.PI*2); ctx.arc(p.x+8, p.y-5, 3, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = 'white'; ctx.font = 'bold 18px Fredoka'; ctx.textAlign = 'center'; ctx.fillText(p.name || '', p.x, p.y + 40);
-            });
-        }
-
-        // Back Attack - Accurate to screenshot (square arena with railroad tracks, 4 players, timer)
-        let players = [];
-        let shots = [];
-        let timer = 60;
-        const arenaSize = 600;
-        const centerX = 450;
-        const centerY = 325;
-        const trackWidth = 40;
-
-        function initBackAttack() {
-            players = [
-                { x: centerX - 100, y: centerY - 100, angle: 0, color: wiiBlue, alive: true, name: 'P1' },
-                { x: centerX + 100, y: centerY - 100, angle: 0, color: wiiRed, alive: true, name: 'P2' },
-                { x: centerX - 100, y: centerY + 100, angle: 0, color: wiiGreen, alive: true, name: 'P3' },
-                { x: centerX + 100, y: centerY + 100, angle: 0, color: wiiYellow, alive: true, name: 'P4' }
-            ];
-            shots = [];
-            timer = 60;
-        }
-
-        function updateBackAttack() {
-            // Movement (WASD for P1, Arrows for P2, AI for P3/P4)
-            if (keys['w']) players[0].y -= 4;
-            if (keys['s']) players[0].y += 4;
-            if (keys['a']) players[0].x -= 4;
-            if (keys['d']) players[0].x += 4;
-
-            if (keys['arrowup']) players[1].y -= 4;
-            if (keys['arrowdown']) players[1].y += 4;
-            if (keys['arrowleft']) players[1].x -= 4;
-            if (keys['arrowright']) players[1].x += 4;
-
-            // AI for P3 and P4 (random movement)
-            [2,3].forEach(i => {
-                if (Math.random() < 0.05) players[i].dx = (Math.random()-0.5)*8;
-                if (Math.random() < 0.05) players[i].dy = (Math.random()-0.5)*8;
-                players[i].x += players[i].dx || 0;
-                players[i].y += players[i].dy || 0;
-            });
-
-            // Shooting
-            if (keys[' '] && players[0].alive) {
-                shots.push({ x: players[0].x, y: players[0].y, angle: players[0].angle, owner: 0 });
-                keys[' '] = false;
-            }
-            if (keys['enter'] && players[1].alive) {
-                shots.push({ x: players[1].x, y: players[1].y, angle: players[1].angle, owner: 1 });
-                keys['enter'] = false;
-            }
-
-            // Update shots
-            shots = shots.filter(s => {
-                s.x += Math.cos(s.angle) * 8;
-                s.y += Math.sin(s.angle) * 8;
-                return s.x > 150 && s.x < 750 && s.y > 100 && s.y < 550;
-            });
-
-            // Hit detection (back of player)
-            players.forEach((p, i) => {
-                if (!p.alive) return;
-                shots.forEach(s => {
-                    if (s.owner === i) return;
-                    let backX = p.x - Math.cos(p.angle) * 25;
-                    let backY = p.y - Math.sin(p.angle) * 25;
-                    if (Math.hypot(backX - s.x, backY - s.y) < 20) {
-                        p.alive = false;
-                    }
-                });
-            });
-
-            // Timer
-            timer -= 1/60;
-            if (timer <= 0 || players.filter(p => p.alive).length <= 1) {
-                let alive = players.filter(p => p.alive);
-                let winner = alive.length === 1 ? alive[0].name : "Tie";
-                alert(`Time's up! Winner: ${winner}`);
-                backToMenu();
-            }
-        }
-
-        function drawBackAttack() {
-            // Arena background (brown dirt)
-            ctx.fillStyle = '#8b4513';
-            ctx.fillRect(0, 0, 900, 650);
-
-            // Green grass patches (4 squares)
-            ctx.fillStyle = '#32cd32';
-            const grassSize = 150;
-            ctx.fillRect(centerX - grassSize, centerY - grassSize, grassSize*2, grassSize*2);
-
-            // Railroad tracks (white with black ties)
-            ctx.strokeStyle = 'white';
-            ctx.lineWidth = trackWidth;
+          if (tile === 0) {
+            ctx.fillStyle = COLOR_PATH;
+            ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+          } else if (tile === 1) {
+            // Blue base
+            ctx.fillStyle = COLOR_BASE;
+            ctx.fillRect(px, py + TILE_SIZE / 3, TILE_SIZE, TILE_SIZE * 2 / 3);
+            // Green hedge
+            ctx.fillStyle = COLOR_HEDGE;
+            ctx.fillRect(px + 4, py + 4, TILE_SIZE - 8, TILE_SIZE - 8);
+          } else if (tile === 2) {
+            ctx.fillStyle = COLOR_GRASS;
+            ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+            // Flowers
+            ctx.fillStyle = COLOR_FLOWER;
             ctx.beginPath();
-            ctx.moveTo(centerX - arenaSize/2, centerY - arenaSize/2);
-            ctx.lineTo(centerX + arenaSize/2, centerY - arenaSize/2);
-            ctx.lineTo(centerX + arenaSize/2, centerY + arenaSize/2);
-            ctx.lineTo(centerX - arenaSize/2, centerY + arenaSize/2);
-            ctx.closePath();
-            ctx.stroke();
-
-            // Track ties (black)
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 10;
-            for (let i = 0; i <= 4; i++) {
-                let x = centerX - arenaSize/2 + (arenaSize/2) * i;
-                ctx.beginPath();
-                ctx.moveTo(x, centerY - arenaSize/2 - 20);
-                ctx.lineTo(x, centerY + arenaSize/2 + 20);
-                ctx.stroke();
-            }
-            for (let i = 0; i <= 4; i++) {
-                let y = centerY - arenaSize/2 + (arenaSize/2) * i;
-                ctx.beginPath();
-                ctx.moveTo(centerX - arenaSize/2 - 20, y);
-                ctx.lineTo(centerX + arenaSize/2 + 20, y);
-                ctx.stroke();
-            }
-
-            // Border walls (blue castle style)
-            ctx.fillStyle = '#1e90ff';
-            ctx.fillRect(0, 0, 900, 100); // top
-            ctx.fillRect(0, 550, 900, 100); // bottom
-            ctx.fillRect(0, 0, 150, 650); // left
-            ctx.fillRect(750, 0, 150, 650); // right
-
-            // Towers (simple)
-            ctx.fillStyle = '#00008b';
-            ctx.fillRect(50, 50, 100, 100);
-            ctx.fillRect(750, 50, 100, 100);
-            ctx.fillRect(50, 500, 100, 100);
-            ctx.fillRect(750, 500, 100, 100);
-
-            // Players
-            players.forEach(p => {
-                if (!p.alive) return;
-                ctx.save();
-                ctx.translate(p.x, p.y);
-                ctx.rotate(p.angle);
-
-                // Mii-style character
-                ctx.fillStyle = p.color;
-                ctx.beginPath();
-                ctx.arc(0, 0, 25, 0, Math.PI*2);
-                ctx.fill();
-
-                // Eyes
-                ctx.fillStyle = 'white';
-                ctx.beginPath();
-                ctx.arc(-10, -8, 8, 0, Math.PI*2);
-                ctx.arc(10, -8, 8, 0, Math.PI*2);
-                ctx.fill();
-                ctx.fillStyle = 'black';
-                ctx.beginPath();
-                ctx.arc(-10, -8, 4, 0, Math.PI*2);
-                ctx.arc(10, -8, 4, 0, Math.PI*2);
-                ctx.fill();
-
-                // Back target (red circle)
-                ctx.fillStyle = 'red';
-                ctx.beginPath();
-                ctx.arc(0, 30, 15, 0, Math.PI*2);
-                ctx.fill();
-
-                ctx.restore();
-
-                ctx.fillStyle = 'white';
-                ctx.font = 'bold 20px Fredoka';
-                ctx.textAlign = 'center';
-                ctx.fillText(p.name, p.x, p.y + 60);
-            });
-
-            // Shots
-            shots.forEach(s => {
-                ctx.fillStyle = 'yellow';
-                ctx.beginPath();
-                ctx.arc(s.x, s.y, 8, 0, Math.PI*2);
-                ctx.fill();
-            });
-
-            // Timer
-            ctx.fillStyle = 'white';
-            ctx.font = 'bold 60px Chewy';
-            ctx.textAlign = 'center';
-            ctx.fillText(Math.ceil(timer), centerX, centerY - arenaSize/2 - 50);
-
-            // Castle roof (rainbow)
-            ctx.fillStyle = '#ff69b4';
-            ctx.fillRect(centerX - 100, 0, 200, 50);
-            ctx.fillStyle = '#ffd700';
-            ctx.fillRect(centerX - 80, 0, 160, 40);
-            ctx.fillStyle = '#00a1d6';
-            ctx.fillRect(centerX - 60, 0, 120, 30);
+            ctx.arc(px + TILE_SIZE/2, py + TILE_SIZE/2, 6, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = '#ff6464';
+            ctx.beginPath();
+            ctx.arc(px + TILE_SIZE/2 - 8, py + TILE_SIZE/2 - 4, 4, 0, Math.PI*2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(px + TILE_SIZE/2 + 8, py + TILE_SIZE/2 + 4, 4, 0, Math.PI*2);
+            ctx.fill();
+          }
         }
+      }
 
-        // Friendly Face-Off (kept simple)
-        let puzzles = [];
-        function initFriendlyFaceOff() {
-            puzzles = Array(4).fill().map((_, i) => ({
-                color: [wiiBlue, wiiRed, wiiGreen, wiiYellow][i],
-                pieces: Array.from({length: 9}, (_, j) => ({ id: j, x: Math.random()*800 + 50, y: Math.random()*500 + 50, rotation: 0, placed: false })),
-                name: ['P1','P2','P3','P4'][i]
-            }));
-        }
+      // Castle top
+      ctx.fillStyle = COLOR_CASTLE;
+      ctx.fillRect(6 * TILE_SIZE, 0, 3 * TILE_SIZE, 3 * TILE_SIZE);
+      ctx.fillRect(11 * TILE_SIZE, 0, 3 * TILE_SIZE, 3 * TILE_SIZE);
+      // Roofs
+      ctx.fillStyle = '#b464b4';
+      ctx.beginPath();
+      ctx.moveTo(6*TILE_SIZE, 0);
+      ctx.lineTo(9*TILE_SIZE, -40);
+      ctx.lineTo(12*TILE_SIZE, 0);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(11*TILE_SIZE, 0);
+      ctx.lineTo(14*TILE_SIZE, -40);
+      ctx.lineTo(17*TILE_SIZE, 0);
+      ctx.fill();
+      // Arch
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.arc(10*TILE_SIZE, TILE_SIZE/2 + 40, 80, 0, Math.PI);
+      ctx.stroke();
 
-        let selected = null;
-        canvas.addEventListener('mousedown', e => {
-            if (currentGame !== 'friendly-face-off') return;
-            const rect = canvas.getBoundingClientRect();
-            const mx = e.clientX - rect.left;
-            const my = e.clientY - rect.top;
-            puzzles[0].pieces.forEach(p => {
-                if (!p.placed && Math.hypot(p.x - mx, p.y - my) < 40) selected = p;
-            });
-        });
-        canvas.addEventListener('mousemove', e => {
-            if (!selected) return;
-            const rect = canvas.getBoundingClientRect();
-            selected.x = e.clientX - rect.left;
-            selected.y = e.clientY - rect.top;
-        });
-        canvas.addEventListener('mouseup', () => {
-            if (!selected) return;
-            const gridX = 150 + Math.round((selected.x - 150)/80)*80;
-            const gridY = 150 + Math.round((selected.y - 150)/80)*80;
-            if (Math.hypot(selected.x - gridX, selected.y - gridY) < 60) {
-                selected.x = gridX; selected.y = gridY; selected.placed = true;
-            }
-            selected = null;
-        });
-        canvas.addEventListener('wheel', e => {
-            if (selected) selected.rotation += e.deltaY > 0 ? Math.PI/2 : -Math.PI/2;
-            e.preventDefault();
-        });
+      // Player
+      ctx.fillStyle = COLOR_PLAYER;
+      ctx.beginPath();
+      ctx.arc(player.x, player.y, player.size, 0, Math.PI*2);
+      ctx.fill();
+      // Eyes
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(player.x - 6, player.y - 6, 5, 0, Math.PI*2);
+      ctx.arc(player.x + 6, player.y - 6, 5, 0, Math.PI*2);
+      ctx.fill();
+    }
 
-        function updateFriendlyFaceOff() {
-            puzzles.slice(1).forEach(puz => {
-                if (Math.random() < 0.005 && puz.pieces.some(p => !p.placed)) {
-                    let unplaced = puz.pieces.filter(p => !p.placed);
-                    let piece = unplaced[Math.floor(Math.random()*unplaced.length)];
-                    piece.x = 150 + (piece.id % 3)*80;
-                    piece.y = 150 + Math.floor(piece.id/3)*80;
-                    piece.rotation = Math.random() < 0.5 ? 0 : Math.PI;
-                    piece.placed = true;
-                }
-            });
+    function loop() {
+      const now = performance.now();
+      const dt = now - (window.lastTime || now);
+      window.lastTime = now;
 
-            puzzles.forEach((puz, i) => {
-                if (puz.pieces.every(p => p.placed)) {
-                    alert(`${puz.name} completed their face!`);
-                    if (i < 2) backToMenu();
-                }
-            });
-        }
+      update(dt);
+      draw();
 
-        function drawFriendlyFaceOff() {
-            ctx.fillStyle = '#fffacd'; ctx.fillRect(0, 0, 900, 650);
-            ctx.fillStyle = '#add8e6'; ctx.fillRect(0, 0, 900, 300);
-            ctx.fillStyle = '#90ee90'; ctx.fillRect(0, 300, 900, 350);
+      requestAnimationFrame(loop);
+    }
 
-            puzzles.forEach((puz, i) => {
-                let offsetX = 100 + i * 220;
-                let offsetY = 150;
-                ctx.strokeStyle = puz.color; ctx.lineWidth = 8; ctx.strokeRect(offsetX-10, offsetY-10, 240, 240);
-                ctx.fillStyle = puz.color; ctx.font = 'bold 24px Chewy'; ctx.textAlign = 'center'; ctx.fillText(`${puz.name}'s Face`, offsetX + 120, offsetY - 30);
-
-                puz.pieces.forEach(piece => {
-                    ctx.save(); ctx.translate(piece.x, piece.y); ctx.rotate(piece.rotation);
-                    ctx.fillStyle = puz.color;
-                    if (piece.id === 0) ctx.fillRect(-40, -60, 80, 60); // Hair
-                    else if (piece.id === 1) { ctx.fillRect(-30, -20, 20, 20); ctx.fillRect(10, -20, 20, 20); } // Eyes
-                    else if (piece.id === 2) { ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(-10, 20); ctx.lineTo(10, 20); ctx.fill(); } // Nose
-                    else if (piece.id === 3) ctx.fillRect(-25, 20, 50, 15); // Mouth
-                    ctx.restore();
-                });
-            });
-        }
-
-        function gameLoop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            if (currentGame === 'zombie-tag') {
-                updateZombieTag();
-                drawZombieTag();
-            } else if (currentGame === 'back-attack') {
-                updateBackAttack();
-                drawBackAttack();
-            } else if (currentGame === 'friendly-face-off') {
-                updateFriendlyFaceOff();
-                drawFriendlyFaceOff();
-            }
-
-            requestAnimationFrame(gameLoop);
-        }
-
-        // Helpers
-        function distance(a, b) {
-            return Math.hypot(a.x - b.x, a.y - b.y);
-        }
-    </script>
+    loop();
+  </script>
 </body>
 </html>
