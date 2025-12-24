@@ -1,320 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Back Attack</title>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>asdw.party</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden; /* Prevents scrolling if image is exactly full-screen */
+    }
+    .hero {
+      height: 100vh; /* Full viewport height */
+      background-image: url('home.png'); /* Replace with your image filename or URL */
+      background-size: cover; /* Scales to cover the screen */
+      background-position: center; /* Centers the image */
+      background-repeat: no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero a {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: pointer; /* Hand cursor on hover */
+    }
+  </style>
 </head>
 <body>
-<script>
-
-// ============================
-// CONFIGURATION
-// ============================
-const GRID_SIZE = 32;
-const ARENA_SIZE = 10; // 10x10 grid
-const ATTACK_DURATION = 150; // ms
-const AI_TURN_INTERVAL = 1000; // ms
-const AI_ATTACK_INTERVAL = 1500; // ms
-
-// ============================
-// PLAYER CLASS
-// ============================
-class Player {
-    constructor(scene, gridX, gridY, playerIndex, isHuman) {
-        this.scene = scene;
-        this.gridX = gridX;
-        this.gridY = gridY;
-        this.playerIndex = playerIndex;
-        this.isHuman = isHuman;
-        this.direction = playerIndex; // 0=up, 1=right, 2=down, 3=left
-        this.alive = true;
-        this.attacking = false;
-        this.attackTimer = 0;
-        
-        // AI timing
-        this.aiTurnTimer = 0;
-        this.aiAttackTimer = 0;
-        
-        // Create sprite
-        const colors = [0xff0000, 0x0000ff, 0x00ff00, 0xffff00];
-        this.sprite = scene.add.rectangle(
-            gridX * GRID_SIZE + GRID_SIZE / 2,
-            gridY * GRID_SIZE + GRID_SIZE / 2,
-            GRID_SIZE - 4,
-            GRID_SIZE - 4,
-            colors[playerIndex]
-        );
-        
-        // Direction indicator (small rectangle in front)
-        this.indicator = scene.add.rectangle(0, 0, 8, 8, 0xffffff);
-        this.updateIndicator();
-    }
-    
-    updateIndicator() {
-        const x = this.sprite.x;
-        const y = this.sprite.y;
-        const offset = GRID_SIZE / 2 - 4;
-        
-        switch(this.direction) {
-            case 0: // up
-                this.indicator.setPosition(x, y - offset);
-                break;
-            case 1: // right
-                this.indicator.setPosition(x + offset, y);
-                break;
-            case 2: // down
-                this.indicator.setPosition(x, y + offset);
-                break;
-            case 3: // left
-                this.indicator.setPosition(x - offset, y);
-                break;
-        }
-    }
-    
-    rotateLeft() {
-        if (!this.alive || this.attacking) return;
-        this.direction = (this.direction + 3) % 4;
-        this.updateIndicator();
-    }
-    
-    rotateRight() {
-        if (!this.alive || this.attacking) return;
-        this.direction = (this.direction + 1) % 4;
-        this.updateIndicator();
-    }
-    
-    attack() {
-        if (!this.alive || this.attacking) return;
-        this.attacking = true;
-        this.attackTimer = ATTACK_DURATION;
-        
-        // Create attack hitbox
-        const hitbox = this.getAttackHitbox();
-        this.attackHitbox = this.scene.add.rectangle(
-            hitbox.x,
-            hitbox.y,
-            hitbox.width,
-            hitbox.height,
-            0xff00ff,
-            0.5
-        );
-    }
-    
-    getAttackHitbox() {
-        const x = this.sprite.x;
-        const y = this.sprite.y;
-        
-        switch(this.direction) {
-            case 0: // up
-                return { x: x, y: y - GRID_SIZE, width: GRID_SIZE, height: GRID_SIZE };
-            case 1: // right
-                return { x: x + GRID_SIZE, y: y, width: GRID_SIZE, height: GRID_SIZE };
-            case 2: // down
-                return { x: x, y: y + GRID_SIZE, width: GRID_SIZE, height: GRID_SIZE };
-            case 3: // left
-                return { x: x - GRID_SIZE, y: y, width: GRID_SIZE, height: GRID_SIZE };
-        }
-    }
-    
-    getBackDirection() {
-        return (this.direction + 2) % 4;
-    }
-    
-    update(delta) {
-        if (!this.alive) return;
-        
-        // Handle attack duration
-        if (this.attacking) {
-            this.attackTimer -= delta;
-            if (this.attackTimer <= 0) {
-                this.attacking = false;
-                if (this.attackHitbox) {
-                    this.attackHitbox.destroy();
-                    this.attackHitbox = null;
-                }
-            }
-        }
-        
-        // AI behavior
-        if (!this.isHuman) {
-            this.aiTurnTimer -= delta;
-            this.aiAttackTimer -= delta;
-            
-            if (this.aiTurnTimer <= 0) {
-                this.aiTurnTimer = AI_TURN_INTERVAL;
-                if (Math.random() < 0.5) {
-                    this.rotateLeft();
-                } else {
-                    this.rotateRight();
-                }
-            }
-            
-            if (this.aiAttackTimer <= 0) {
-                this.aiAttackTimer = AI_ATTACK_INTERVAL;
-                this.attack();
-            }
-        }
-    }
-    
-    eliminate() {
-        this.alive = false;
-        this.sprite.setAlpha(0.3);
-        this.indicator.setVisible(false);
-        if (this.attackHitbox) {
-            this.attackHitbox.destroy();
-            this.attackHitbox = null;
-        }
-    }
-}
-
-// ============================
-// GAME SCENE
-// ============================
-class GameScene extends Phaser.Scene {
-    constructor() {
-        super('GameScene');
-    }
-    
-    create() {
-        // Draw arena grid
-        const offsetX = (1280 - ARENA_SIZE * GRID_SIZE) / 2;
-        const offsetY = (720 - ARENA_SIZE * GRID_SIZE) / 2;
-        
-        this.add.rectangle(
-            offsetX + (ARENA_SIZE * GRID_SIZE) / 2,
-            offsetY + (ARENA_SIZE * GRID_SIZE) / 2,
-            ARENA_SIZE * GRID_SIZE,
-            ARENA_SIZE * GRID_SIZE,
-            0x333333
-        );
-        
-        // Grid lines
-        for (let i = 0; i <= ARENA_SIZE; i++) {
-            this.add.line(
-                0, 0,
-                offsetX + i * GRID_SIZE,
-                offsetY,
-                offsetX + i * GRID_SIZE,
-                offsetY + ARENA_SIZE * GRID_SIZE,
-                0x666666
-            ).setOrigin(0);
-            
-            this.add.line(
-                0, 0,
-                offsetX,
-                offsetY + i * GRID_SIZE,
-                offsetX + ARENA_SIZE * GRID_SIZE,
-                offsetY + i * GRID_SIZE,
-                0x666666
-            ).setOrigin(0);
-        }
-        
-        // Create players
-        const startX = offsetX / GRID_SIZE;
-        const startY = offsetY / GRID_SIZE;
-        
-        this.players = [
-            new Player(this, startX + 2, startY + 2, 0, true),  // Human
-            new Player(this, startX + 7, startY + 2, 1, false), // AI
-            new Player(this, startX + 7, startY + 7, 2, false), // AI
-            new Player(this, startX + 2, startY + 7, 3, false)  // AI
-        ];
-        
-        // Input
-        this.cursors = this.input.keyboard.createCursorKeys();
-        this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-        
-        // Game state
-        this.gameOver = false;
-        this.winnerText = null;
-    }
-    
-    update(time, delta) {
-        if (this.gameOver) return;
-        
-        // Human controls
-        const human = this.players[0];
-        if (human.alive) {
-            if (Phaser.Input.Keyboard.JustDown(this.cursors.left)) {
-                human.rotateLeft();
-            }
-            if (Phaser.Input.Keyboard.JustDown(this.cursors.right)) {
-                human.rotateRight();
-            }
-            if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
-                human.attack();
-            }
-        }
-        
-        // Update all players
-        this.players.forEach(p => p.update(delta));
-        
-        // Check attacks
-        this.checkAttacks();
-        
-        // Check win condition
-        this.checkWinCondition();
-    }
-    
-    checkAttacks() {
-        this.players.forEach(attacker => {
-            if (!attacker.alive || !attacker.attacking || !attacker.attackHitbox) return;
-            
-            const hitbox = attacker.getAttackHitbox();
-            
-            this.players.forEach(target => {
-                if (!target.alive || target === attacker) return;
-                
-                // Check if target is in hitbox
-                const tx = target.sprite.x;
-                const ty = target.sprite.y;
-                
-                if (Math.abs(tx - hitbox.x) < GRID_SIZE / 2 &&
-                    Math.abs(ty - hitbox.y) < GRID_SIZE / 2) {
-                    
-                    // Check if hit from behind
-                    const hitDirection = attacker.direction;
-                    const targetBack = target.getBackDirection();
-                    
-                    if (hitDirection === targetBack) {
-                        target.eliminate();
-                    }
-                }
-            });
-        });
-    }
-    
-    checkWinCondition() {
-        const alive = this.players.filter(p => p.alive);
-        
-        if (alive.length === 1) {
-            this.gameOver = true;
-            const winner = alive[0];
-            const winnerName = winner.isHuman ? 'Player 1 (You)' : `Player ${winner.playerIndex + 1} (AI)`;
-            
-            this.winnerText = this.add.text(
-                640, 360,
-                `${winnerName} Wins!`,
-                { fontSize: '48px', fill: '#fff' }
-            ).setOrigin(0.5);
-        }
-    }
-}
-
-// ============================
-// PHASER CONFIG
-// ============================
-const config = {
-    type: Phaser.AUTO,
-    width: 1280,
-    height: 720,
-    backgroundColor: '#000000',
-    scene: [GameScene]
-};
-
-const game = new Phaser.Game(config);
-
-</script>
+  <div class="hero">
+    <a href="https://example.com/next-page" target="_blank" rel="noopener noreferrer">
+      <!-- The empty link covers the whole area – click anywhere to go -->
+    </a>
+  </div>
 </body>
 </html>
