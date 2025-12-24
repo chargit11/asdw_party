@@ -1,211 +1,320 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Back Attack - Castle Arena</title>
-    <style>
-        body { background: #1a1a1a; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Arial Black', sans-serif; overflow: hidden; }
-        #game-container { position: relative; border: 8px solid #333; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
-        #timer { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: white; border: 4px solid #444; border-radius: 30px; padding: 5px 20px; font-size: 24px; color: #333; display: flex; align-items: center; z-index: 10; }
-        canvas { display: block; background: #8d5524; }
-    </style>
+    <meta charset="UTF-8">
+    <title>Back Attack</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
 </head>
 <body>
-
-<div id="game-container">
-    <div id="timer">⏱ <span id="seconds">60</span></div>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
-</div>
-
 <script>
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const timeDisplay = document.getElementById('seconds');
 
-let timeLeft = 60;
-const GRID = 80;
-const OFFSET_X = 120;
-const OFFSET_Y = 120;
+// ============================
+// CONFIGURATION
+// ============================
+const GRID_SIZE = 32;
+const ARENA_SIZE = 10; // 10x10 grid
+const ATTACK_DURATION = 150; // ms
+const AI_TURN_INTERVAL = 1000; // ms
+const AI_ATTACK_INTERVAL = 1500; // ms
 
-// Track Layout based on the image (0 = grass/bush, 1 = track)
-const map = [
-    [1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 1, 0, 1, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 1, 0, 1, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1]
-];
-
-class Tank {
-    constructor(x, y, color, isPlayer) {
-        this.gridX = x;
-        this.gridY = y;
-        this.x = x * GRID + OFFSET_X;
-        this.y = y * GRID + OFFSET_Y;
-        this.color = color;
-        this.isPlayer = isPlayer;
-        this.dir = {x: 1, y: 0};
-        this.nextDir = {x: 1, y: 0};
-        this.bullets = [];
+// ============================
+// PLAYER CLASS
+// ============================
+class Player {
+    constructor(scene, gridX, gridY, playerIndex, isHuman) {
+        this.scene = scene;
+        this.gridX = gridX;
+        this.gridY = gridY;
+        this.playerIndex = playerIndex;
+        this.isHuman = isHuman;
+        this.direction = playerIndex; // 0=up, 1=right, 2=down, 3=left
         this.alive = true;
+        this.attacking = false;
+        this.attackTimer = 0;
+        
+        // AI timing
+        this.aiTurnTimer = 0;
+        this.aiAttackTimer = 0;
+        
+        // Create sprite
+        const colors = [0xff0000, 0x0000ff, 0x00ff00, 0xffff00];
+        this.sprite = scene.add.rectangle(
+            gridX * GRID_SIZE + GRID_SIZE / 2,
+            gridY * GRID_SIZE + GRID_SIZE / 2,
+            GRID_SIZE - 4,
+            GRID_SIZE - 4,
+            colors[playerIndex]
+        );
+        
+        // Direction indicator (small rectangle in front)
+        this.indicator = scene.add.rectangle(0, 0, 8, 8, 0xffffff);
+        this.updateIndicator();
     }
-
-    draw() {
-        if (!this.alive) return;
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.rotate(Math.atan2(this.dir.y, this.dir.x));
-
-        // Tank Body
-        ctx.fillStyle = this.color;
-        ctx.fillRect(-18, -15, 36, 30);
-        ctx.strokeStyle = "black";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(-18, -15, 36, 30);
-
-        // Cannon
-        ctx.fillStyle = "#333";
-        ctx.fillRect(10, -4, 15, 8);
-
-        // BACK TARGET (The Weak Spot)
-        ctx.fillStyle = "red";
-        ctx.beginPath();
-        ctx.arc(-15, 0, 8, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.restore();
-
-        // Bullets
-        ctx.fillStyle = "yellow";
-        this.bullets.forEach((b, i) => {
-            ctx.beginPath();
-            ctx.arc(b.x, b.y, 5, 0, Math.PI * 2);
-            ctx.fill();
-            b.x += b.vx; b.y += b.vy;
-            if(b.x < 0 || b.x > 800 || b.y < 0 || b.y > 600) this.bullets.splice(i, 1);
-        });
+    
+    updateIndicator() {
+        const x = this.sprite.x;
+        const y = this.sprite.y;
+        const offset = GRID_SIZE / 2 - 4;
+        
+        switch(this.direction) {
+            case 0: // up
+                this.indicator.setPosition(x, y - offset);
+                break;
+            case 1: // right
+                this.indicator.setPosition(x + offset, y);
+                break;
+            case 2: // down
+                this.indicator.setPosition(x, y + offset);
+                break;
+            case 3: // left
+                this.indicator.setPosition(x - offset, y);
+                break;
+        }
     }
-
-    move() {
+    
+    rotateLeft() {
+        if (!this.alive || this.attacking) return;
+        this.direction = (this.direction + 3) % 4;
+        this.updateIndicator();
+    }
+    
+    rotateRight() {
+        if (!this.alive || this.attacking) return;
+        this.direction = (this.direction + 1) % 4;
+        this.updateIndicator();
+    }
+    
+    attack() {
+        if (!this.alive || this.attacking) return;
+        this.attacking = true;
+        this.attackTimer = ATTACK_DURATION;
+        
+        // Create attack hitbox
+        const hitbox = this.getAttackHitbox();
+        this.attackHitbox = this.scene.add.rectangle(
+            hitbox.x,
+            hitbox.y,
+            hitbox.width,
+            hitbox.height,
+            0xff00ff,
+            0.5
+        );
+    }
+    
+    getAttackHitbox() {
+        const x = this.sprite.x;
+        const y = this.sprite.y;
+        
+        switch(this.direction) {
+            case 0: // up
+                return { x: x, y: y - GRID_SIZE, width: GRID_SIZE, height: GRID_SIZE };
+            case 1: // right
+                return { x: x + GRID_SIZE, y: y, width: GRID_SIZE, height: GRID_SIZE };
+            case 2: // down
+                return { x: x, y: y + GRID_SIZE, width: GRID_SIZE, height: GRID_SIZE };
+            case 3: // left
+                return { x: x - GRID_SIZE, y: y, width: GRID_SIZE, height: GRID_SIZE };
+        }
+    }
+    
+    getBackDirection() {
+        return (this.direction + 2) % 4;
+    }
+    
+    update(delta) {
         if (!this.alive) return;
-        let targetX = this.gridX * GRID + OFFSET_X;
-        let targetY = this.gridY * GRID + OFFSET_Y;
-
-        // Move towards grid target
-        if (this.x < targetX) this.x += 2;
-        else if (this.x > targetX) this.x -= 2;
-        if (this.y < targetY) this.y += 2;
-        else if (this.y > targetY) this.y -= 2;
-
-        // Reached intersection
-        if (this.x === targetX && this.y === targetY) {
-            let nextX = this.gridX + this.nextDir.x;
-            let nextY = this.gridY + this.nextDir.y;
-
-            if (map[nextY] && map[nextY][nextX] === 1) {
-                // Prevent 180
-                if (!(this.nextDir.x === -this.dir.x && this.nextDir.y === -this.dir.y)) {
-                    this.dir = {...this.nextDir};
+        
+        // Handle attack duration
+        if (this.attacking) {
+            this.attackTimer -= delta;
+            if (this.attackTimer <= 0) {
+                this.attacking = false;
+                if (this.attackHitbox) {
+                    this.attackHitbox.destroy();
+                    this.attackHitbox = null;
+                }
+            }
+        }
+        
+        // AI behavior
+        if (!this.isHuman) {
+            this.aiTurnTimer -= delta;
+            this.aiAttackTimer -= delta;
+            
+            if (this.aiTurnTimer <= 0) {
+                this.aiTurnTimer = AI_TURN_INTERVAL;
+                if (Math.random() < 0.5) {
+                    this.rotateLeft();
+                } else {
+                    this.rotateRight();
                 }
             }
             
-            // Wall collision check
-            if (map[this.gridY + this.dir.y] && map[this.gridY + this.dir.y][this.gridX + this.dir.x] === 1) {
-                this.gridX += this.dir.x;
-                this.gridY += this.dir.y;
+            if (this.aiAttackTimer <= 0) {
+                this.aiAttackTimer = AI_ATTACK_INTERVAL;
+                this.attack();
             }
+        }
+    }
+    
+    eliminate() {
+        this.alive = false;
+        this.sprite.setAlpha(0.3);
+        this.indicator.setVisible(false);
+        if (this.attackHitbox) {
+            this.attackHitbox.destroy();
+            this.attackHitbox = null;
         }
     }
 }
 
-function drawArena() {
-    // 1. Cobblestone Ground
-    ctx.fillStyle = "#a67c52";
-    ctx.fillRect(0, 0, 800, 600);
+// ============================
+// GAME SCENE
+// ============================
+class GameScene extends Phaser.Scene {
+    constructor() {
+        super('GameScene');
+    }
     
-    // 2. Outer Castle Walls & Towers
-    ctx.fillStyle = "#5d8aa8"; // Blue towers
-    const towerSize = 80;
-    // Corners
-    [ [0,0], [720,0], [0,520], [720,520] ].forEach(p => {
-        ctx.fillRect(p[0], p[1], towerSize, towerSize);
-        ctx.fillStyle = "#e52b50"; // Red roofs
-        ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(p[0]+40, p[1]-20); ctx.lineTo(p[0]+80, p[1]); ctx.fill();
-        ctx.fillStyle = "#5d8aa8";
-    });
-
-    // 3. Tracks (The White Rails)
-    ctx.strokeStyle = "rgba(255,255,255,0.8)";
-    ctx.lineWidth = 40;
-    ctx.lineJoin = "round";
+    create() {
+        // Draw arena grid
+        const offsetX = (1280 - ARENA_SIZE * GRID_SIZE) / 2;
+        const offsetY = (720 - ARENA_SIZE * GRID_SIZE) / 2;
+        
+        this.add.rectangle(
+            offsetX + (ARENA_SIZE * GRID_SIZE) / 2,
+            offsetY + (ARENA_SIZE * GRID_SIZE) / 2,
+            ARENA_SIZE * GRID_SIZE,
+            ARENA_SIZE * GRID_SIZE,
+            0x333333
+        );
+        
+        // Grid lines
+        for (let i = 0; i <= ARENA_SIZE; i++) {
+            this.add.line(
+                0, 0,
+                offsetX + i * GRID_SIZE,
+                offsetY,
+                offsetX + i * GRID_SIZE,
+                offsetY + ARENA_SIZE * GRID_SIZE,
+                0x666666
+            ).setOrigin(0);
+            
+            this.add.line(
+                0, 0,
+                offsetX,
+                offsetY + i * GRID_SIZE,
+                offsetX + ARENA_SIZE * GRID_SIZE,
+                offsetY + i * GRID_SIZE,
+                0x666666
+            ).setOrigin(0);
+        }
+        
+        // Create players
+        const startX = offsetX / GRID_SIZE;
+        const startY = offsetY / GRID_SIZE;
+        
+        this.players = [
+            new Player(this, startX + 2, startY + 2, 0, true),  // Human
+            new Player(this, startX + 7, startY + 2, 1, false), // AI
+            new Player(this, startX + 7, startY + 7, 2, false), // AI
+            new Player(this, startX + 2, startY + 7, 3, false)  // AI
+        ];
+        
+        // Input
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        
+        // Game state
+        this.gameOver = false;
+        this.winnerText = null;
+    }
     
-    for(let r=0; r<map.length; r++) {
-        for(let c=0; c<map[r].length; c++) {
-            if(map[r][c] === 1) {
-                ctx.strokeRect(c*GRID + OFFSET_X - 20, r*GRID + OFFSET_Y - 20, 40, 40);
-            } else {
-                // Draw Bushes/Grass in the holes
-                ctx.fillStyle = "#2d5a27";
-                ctx.beginPath();
-                ctx.arc(c*GRID + OFFSET_X, r*GRID + OFFSET_Y, 30, 0, Math.PI*2);
-                ctx.fill();
+    update(time, delta) {
+        if (this.gameOver) return;
+        
+        // Human controls
+        const human = this.players[0];
+        if (human.alive) {
+            if (Phaser.Input.Keyboard.JustDown(this.cursors.left)) {
+                human.rotateLeft();
             }
+            if (Phaser.Input.Keyboard.JustDown(this.cursors.right)) {
+                human.rotateRight();
+            }
+            if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
+                human.attack();
+            }
+        }
+        
+        // Update all players
+        this.players.forEach(p => p.update(delta));
+        
+        // Check attacks
+        this.checkAttacks();
+        
+        // Check win condition
+        this.checkWinCondition();
+    }
+    
+    checkAttacks() {
+        this.players.forEach(attacker => {
+            if (!attacker.alive || !attacker.attacking || !attacker.attackHitbox) return;
+            
+            const hitbox = attacker.getAttackHitbox();
+            
+            this.players.forEach(target => {
+                if (!target.alive || target === attacker) return;
+                
+                // Check if target is in hitbox
+                const tx = target.sprite.x;
+                const ty = target.sprite.y;
+                
+                if (Math.abs(tx - hitbox.x) < GRID_SIZE / 2 &&
+                    Math.abs(ty - hitbox.y) < GRID_SIZE / 2) {
+                    
+                    // Check if hit from behind
+                    const hitDirection = attacker.direction;
+                    const targetBack = target.getBackDirection();
+                    
+                    if (hitDirection === targetBack) {
+                        target.eliminate();
+                    }
+                }
+            });
+        });
+    }
+    
+    checkWinCondition() {
+        const alive = this.players.filter(p => p.alive);
+        
+        if (alive.length === 1) {
+            this.gameOver = true;
+            const winner = alive[0];
+            const winnerName = winner.isHuman ? 'Player 1 (You)' : `Player ${winner.playerIndex + 1} (AI)`;
+            
+            this.winnerText = this.add.text(
+                640, 360,
+                `${winnerName} Wins!`,
+                { fontSize: '48px', fill: '#fff' }
+            ).setOrigin(0.5);
         }
     }
 }
 
-const player = new Tank(0, 0, "#00aaff", true);
-const cpu = new Tank(6, 4, "#ff4444", false);
+// ============================
+// PHASER CONFIG
+// ============================
+const config = {
+    type: Phaser.AUTO,
+    width: 1280,
+    height: 720,
+    backgroundColor: '#000000',
+    scene: [GameScene]
+};
 
-function update() {
-    ctx.clearRect(0,0,800,600);
-    drawArena();
-    
-    player.move();
-    player.draw();
+const game = new Phaser.Game(config);
 
-    cpu.move();
-    // Simple AI turn logic
-    if (cpu.x === cpu.gridX * GRID + OFFSET_X && cpu.y === cpu.gridY * GRID + OFFSET_Y) {
-        if (Math.random() < 0.3) {
-            const dirs = [{x:1,y:0}, {x:-1,y:0}, {x:0,y:1}, {x:0,y:-1}];
-            cpu.nextDir = dirs[Math.floor(Math.random()*4)];
-        }
-    }
-    cpu.draw();
-
-    // Hit Detection
-    player.bullets.forEach((b, i) => {
-        let d = Math.hypot(b.x - cpu.x, b.y - cpu.y);
-        if (d < 25) {
-            // Logic to check if hit was from behind
-            let angleToBullet = Math.atan2(b.y - cpu.y, b.x - cpu.x);
-            let cpuFacing = Math.atan2(cpu.dir.y, cpu.dir.x);
-            let diff = Math.abs(angleToBullet - (cpuFacing + Math.PI));
-            if (diff < 0.8 || diff > 5.5) {
-                cpu.alive = false;
-                alert("BACK ATTACK! YOU WIN!");
-                location.reload();
-            }
-            player.bullets.splice(i, 1);
-        }
-    });
-
-    requestAnimationFrame(update);
-}
-
-// Timer
-setInterval(() => { if(timeLeft > 0) timeLeft--; timeDisplay.innerText = timeLeft; }, 1000);
-
-window.addEventListener('keydown', e => {
-    if (e.key === "ArrowUp") player.nextDir = {x:0, y:-1};
-    if (e.key === "ArrowDown") player.nextDir = {x:0, y:1};
-    if (e.key === "ArrowLeft") player.nextDir = {x:-1, y:0};
-    if (e.key === "ArrowRight") player.nextDir = {x:1, y:0};
-    if (e.code === "Space") player.bullets.push({x: player.x, y: player.y, vx: player.dir.x*6, vy: player.dir.y*6});
-});
-
-update();
 </script>
 </body>
 </html>
